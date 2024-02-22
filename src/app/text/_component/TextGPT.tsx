@@ -1,12 +1,9 @@
 "use client"
-import OpenAI from 'openai';
 import { useEffect, useState } from "react";
 
 import { Flex, Input, Form, Button, Spin } from 'antd';
-const openai = new OpenAI({
-    dangerouslyAllowBrowser: true,
-    apiKey: process.env.NEXT_PUBLIC_OPENAI_API_KEY
-});
+import { getText } from '@/app/api/text';
+
 const layout = {
     labelCol: { span: 8 },
     wrapperCol: { span: 16 },
@@ -19,14 +16,9 @@ export const TextGPT = () => {
     const [isLoading, setIsLoading] = useState<boolean>(false);
     async function main(message: string) {
         setIsLoading(true);
-        const completion = await openai.chat.completions.create({
-            messages: [
-                { "role": "user", "content": message }],
-            model: "gpt-3.5-turbo",
-        });
-        console.log(completion.choices[0]);
-        if (completion.choices[0].message.content) {
-            setMessage(completion.choices[0].message.content);
+        let result = await getText(message);
+        if (result) {
+            setMessage(result);
         }
         setIsLoading(false);
     }

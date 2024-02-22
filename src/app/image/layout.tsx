@@ -1,12 +1,13 @@
 // image관련
 
-import { ImageGPT } from "./_component/ImageGPT";
+import { Flex } from "antd";
 import { ReactNode } from "react";
 type Props = { children: ReactNode, modal: ReactNode };
 export default function ImageLayout({ children, modal }: Props) {
     return (
-        <>
+        <Flex gap='middle' vertical>
+            <p>이미지 관련이에요</p>
             {children}
-        </>
+        </Flex>
     )
 }
