@@ -1,16 +1,15 @@
 "use server";
 import OpenAI from "openai";
 const openai = new OpenAI({ apiKey: process.env.OPENAI_API_KEY });
-export const getText = async (message: string) => {
+export const getText = async (model: string, message: string) => {
     try {
-        // console.log("있어", process.env.OPENAI_API_KEY);
-
+        // console.log("getText", { model, message });
         const completion = await openai.chat.completions.create({
             messages: [
-                { role: "system", content: "Kakao Friends Assistant Bot." },
+                // { role: "system", content: "Kakao Friends Assistant Bot." },
                 { role: "user", content: message },
             ],
-            model: "gpt-3.5-turbo",
+            model: model,
         });
         // console.log(completion.choices[0]);
         if (completion.choices[0].message.content) {
