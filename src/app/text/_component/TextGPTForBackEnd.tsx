@@ -10,42 +10,40 @@ import { AssistantMessage, GPTTextRequest } from "@/types/GPT/type";
 import { useQuery } from "@tanstack/react-query";
 import { getUserObject } from "@/app/api/user/userAPI";
 import { getChatRoom } from "@/app/api/chatRoom/chatRoom";
+import { ChattingRoomsTypes } from "@/types/user/types";
 
 const { TextArea } = Input;
 type Props = {
     user?: any;
 }
-export const TextGPT = ({ user }: Props) => {
+export const TextGPTForBackEnd = ({ user }: Props) => {
     const [form] = Form.useForm();
     if (!user) user = 'test';
 
-    const { data, } = useQuery<any, Object, any, [_1: string, _2: string]>({
-        queryKey: ['getUser', user],
-        queryFn: getUserObject,
-    })
+    // const { data, isLoading: userLoading } = useQuery<any, Object, any, [_1: string, _2: string]>({
+    //     queryKey: ['getUser', user],
+    //     queryFn: getUserObject,
+    // })
 
-    const { data: chatRoomData } = useQuery<any, Object, any, [_1: string, _2: string]>({
+    const { data: chatRoomData, isLoading: chatLoading, isError } = useQuery<any, Object, any, [_1: string, _2: string]>({
         queryKey: ['getChatRoom', '0'],
         queryFn: getChatRoom
     })
 
-    if (data && chatRoomData) {
-        console.log(data)
-        console.log(chatRoomData)
-    }
+    // if (!userLoading) {
+    //     return (<div>유저 로딩중</div>)
+    // };
+    // if (!chatLoading) {
+    //     return (<div>챗룸 로딩중</div>)
+    // }
+    // if (!data || !chatRoomData) return null
+    // if (data && chatRoomData) {
+    //     console.log(data)
+    //     console.log(chatRoomData)
+    // }
 
-
-    // 
-    const [textGPTObject, setTextGPTObject] = useState<GPTTextRequest>(() => {
-        // 로컬 스토리지 또는 세션 스토리지에서 값 가져오기
-        const storedCount = localStorage.getItem(user);
-        if (storedCount && Object.keys(JSON.parse(storedCount)).length > 0) {
-            return JSON.parse(storedCount);
-        }
-
-        // 기본값
-        return { messages: [{ role: 'system', content: "You are a helpful assistant." }] }
-    });
+    //@ts-ignore
+    const [textGPTObject, setTextGPTObject] = useState<GPTTextRequest>();
 
     const [isLoading, setIsLoading] = useState<boolean>(false);
 
@@ -88,6 +86,14 @@ export const TextGPT = ({ user }: Props) => {
         (option?.label ?? '').toLowerCase().includes(input.toLowerCase());
 
     useEffect(() => {
+        if (!chatLoading && !isError) {
+            console.log({ chatRoomData })
+            setTextGPTObject(chatRoomData.results[0].GPTTextRequest as GPTTextRequest)
+        }
+    }, [chatRoomData, chatLoading, isError])
+
+
+    useEffect(() => {
         async function useEffectAsync() {
             // let fineTunedList = await getFineTuningJobsList();
             // let lists = {
@@ -109,17 +115,17 @@ export const TextGPT = ({ user }: Props) => {
         useEffectAsync();
     }, [])
 
-    useEffect(() => {
-        // if (Object.keys(textGPTObject).length > 0) {
-        localStorage.setItem(user, JSON.stringify(textGPTObject))
-        console.log({ messageLogs: textGPTObject }, localStorage.getItem(user))
-        // }
+    // useEffect(() => {
+    //     // if (Object.keys(textGPTObject).length > 0) {
+    //     localStorage.setItem(user, JSON.stringify(textGPTObject))
+    //     console.log({ messageLogs: textGPTObject }, localStorage.getItem(user))
+    //     // }
 
-    }, [textGPTObject])
+    // }, [textGPTObject])
 
     return (
         <Flex gap='middle' vertical>
-            <KakaoTalkChatRoom data={textGPTObject}></KakaoTalkChatRoom>
+            {textGPTObject && <KakaoTalkChatRoom user={chatRoomData.results[0].user} assistant={chatRoomData.results[0].assistant} data={textGPTObject} />}
             {isLoading && <Spin />}
             <Form form={form} name='nest-messages' onFinish={onFinish} style={{ minWidth: 600 }}>
                 {/* <Form.Item name={'model'} label='model'>

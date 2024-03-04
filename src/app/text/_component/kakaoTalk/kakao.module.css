@@ -32,7 +32,7 @@
 }
 .wrap .chat .textContainer {
     display: inline-block;
-    max-width: calc(100% - 1000px);
+    max-width: calc(100% - 60px);
 }
 
 .name {

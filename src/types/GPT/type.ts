@@ -18,5 +18,5 @@ export interface AssistantMessage {
 
 export interface GPTTextRequest {
     messages: (SystemMessage | UserMessage | AssistantMessage)[];
-    mdoel: string;
+    model: string;
 }
