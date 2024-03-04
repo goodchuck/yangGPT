@@ -49,7 +49,9 @@ const items: MenuItem[] = [
 
         // getItem('Submenu', 'sub3', null, [getItem('Option 11', '11'), getItem('Option 12', '12')]),
     ]),
-    getItem('text', '/text', <AppstoreOutlined />),
+    getItem('text', '/text', <AppstoreOutlined />, [
+        getItem('gpt3_5', '/text/gpt3_5'),
+    ]),
 ];
 
 export const SideBar = () => {
