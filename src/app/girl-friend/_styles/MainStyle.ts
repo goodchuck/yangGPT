@@ -36,7 +36,7 @@ export const StyledMainContainer = styled.div`
         /* padding: 0px 100px 0px 0px; */
         & div {
             display: flex;
-            justify-content: center;
+            /* justify-content: center; */
             /* align-items: center; */
             /* gap: 20px; */
             & div {

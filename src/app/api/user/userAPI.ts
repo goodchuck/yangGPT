@@ -21,3 +21,26 @@ export const getUserObject = async ({
 
     return res.json();
 };
+
+export const getFriends = async ({
+    queryKey,
+}: {
+    queryKey: [string, string];
+}) => {
+    const [_1, userId] = queryKey;
+    const res = await fetch(
+        `${process.env.NEXT_PUBLIC_BASE_URL}/api/getFriends/${userId}`,
+        {
+            next: {
+                tags: ["getFriends", userId],
+            },
+            // credentials: 'include'
+        }
+    );
+    console.log("getFriends", userId, res.ok);
+    if (!res.ok) {
+        throw new Error("Failed to fetch data");
+    }
+
+    return res.json();
+};

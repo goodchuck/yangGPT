@@ -22,7 +22,7 @@ export default async function Page({ params }: Props) {
 
     return (
         <>
-            {username} 페이지입니다.
+            {/* {username} 페이지입니다. */}
             <TextGPTForBackEnd user={username}></TextGPTForBackEnd>
         </>
     )

@@ -3,69 +3,115 @@ import { useEffect, useState } from "react";
 
 import { Flex, Input, Form, Button, Spin, Select } from 'antd';
 import { getText } from '@/app/api/text';
-import { getFineTuningJobsList } from "@/app/api/finetuning/finetuning";
-import { getModels } from "@/app/api/models/ModelsAPI";
-import { KakaoTalkChatRoom } from "./kakaoTalk/kakaoTalk";
 import { AssistantMessage, GPTTextRequest } from "@/types/GPT/type";
-import { useQuery } from "@tanstack/react-query";
-import { getUserObject } from "@/app/api/user/userAPI";
+import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { getChatRoom } from "@/app/api/chatRoom/chatRoom";
+import { KakaoTalkChatRoom } from "./kakaoTalk/kakaoTalk";
 import { ChattingRoomsTypes } from "@/types/user/types";
+import { useRouter } from "next/navigation";
 
 const { TextArea } = Input;
+
 type Props = {
     user?: any;
 }
+
 export const TextGPTForBackEnd = ({ user }: Props) => {
     const [form] = Form.useForm();
     if (!user) user = 'test';
+    const queryClient = useQueryClient();
+    const router = useRouter();
 
-    // const { data, isLoading: userLoading } = useQuery<any, Object, any, [_1: string, _2: string]>({
-    //     queryKey: ['getUser', user],
-    //     queryFn: getUserObject,
-    // })
-
+    /**
+     * 상대방의 id를 통해 채팅방을 가져온다.
+     */
     const { data: chatRoomData, isLoading: chatLoading, isError } = useQuery<any, Object, any, [_1: string, _2: string]>({
-        queryKey: ['getChatRoom', '0'],
+        queryKey: ['getChatRoom', user],
         queryFn: getChatRoom
     })
 
-    // if (!userLoading) {
-    //     return (<div>유저 로딩중</div>)
-    // };
-    // if (!chatLoading) {
-    //     return (<div>챗룸 로딩중</div>)
-    // }
-    // if (!data || !chatRoomData) return null
-    // if (data && chatRoomData) {
-    //     console.log(data)
-    //     console.log(chatRoomData)
-    // }
-
-    //@ts-ignore
-    const [textGPTObject, setTextGPTObject] = useState<GPTTextRequest>();
-
     const [isLoading, setIsLoading] = useState<boolean>(false);
 
-    // 모델 선택 select
-    const [selectValue, setSelectValue] = useState<any[]>();
+
+    const mutation = useMutation({
+        mutationFn: async (e: any) => {
+            // console.log('mutation테스트', e);
+            let { model, messages } = e;
+
+            // return;
+            return await getText(model, messages);
+        },
+        async onMutate(e: any) {
+            let { model, messages } = e;
+            // console.log('mutate', { model, messages })
+            const queryCache = queryClient.getQueryCache()
+            const queryKeys = queryCache.getAll().map(cache => cache.queryKey)
+            console.log('queryKeys', queryKeys, e);
+            queryKeys.forEach((queryKey) => {
+                if (queryKey[0] === 'getChatRoom') {
+                    const value: { isSuccess: boolean, results: ChattingRoomsTypes[] } | undefined = queryClient.getQueryData(queryKey);
+                    if (value && value.isSuccess) {
+                        console.log({ value })
+                        let lastMessage = messages.at(-1);
+                        const shallow = JSON.parse(JSON.stringify(value));
+                        shallow.results[0].GPTTextRequest.messages = [
+                            ...shallow.results[0].GPTTextRequest.messages,
+                            lastMessage
+                        ]
+                        queryClient.setQueryData(queryKey, shallow);
+                    }
+                }
+            })
+        },
+        async onSuccess(response, variable) {
+            if (response) {
+                console.log({ response, variable })
+                let lastUserMessage = variable.messages.at(-1);
+                let lastAssMessage = { role: 'assistant', content: response };
+
+                let result = await fetch(`${process.env.NEXT_PUBLIC_BASE_URL}/api/add/message`, {
+                    method: 'post',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({
+                        message: [lastUserMessage, lastAssMessage],
+                        assistant: chatRoomData.results[0].assistant
+                    })
+                })
+                if (result.ok) {
+                    queryClient.invalidateQueries({ queryKey: ['getChatRoom', user] });
+                    onReset();
+                }
+
+            }
+        },
+        onError(error) {
+            // let { model, messages } = e;
+            // console.log('mutate', { model, messages })
+            const queryCache = queryClient.getQueryCache()
+            const queryKeys = queryCache.getAll().map(cache => cache.queryKey)
+            console.log('queryKeys', queryKeys,);
+            queryKeys.forEach((queryKey) => {
+                if (queryKey[0] === 'getChatRoom') {
+                    const value: { isSuccess: boolean, results: ChattingRoomsTypes[] } | undefined = queryClient.getQueryData(queryKey);
+                    if (value && value.isSuccess) {
+                        console.log({ value })
+                        const shallow = JSON.parse(JSON.stringify(value));
+                        shallow.results[0].GPTTextRequest.messages = shallow.results[0].GPTTextRequest.messages.slice(0, -1);
+                        queryClient.setQueryData(queryKey, shallow);
+                    }
+                }
+            })
+        }
+    })
 
     async function main({ message, model = 'gpt-3.5-turbo' }: { model: string, message: string }) {
         setIsLoading(true);
-        let reqMessage = JSON.parse(JSON.stringify(textGPTObject));
-        console.log({ reqMessage }, model, 'first')
+        let object = chatRoomData.results[0].GPTTextRequest;
+        let reqMessage = JSON.parse(JSON.stringify(object));
         reqMessage.messages = [...reqMessage.messages, { role: 'user', content: message }];
-        let result = await getText(model, reqMessage.messages);
-        if (result) {
-            let assiMessage: AssistantMessage = { role: 'assistant', content: result };
-            setTextGPTObject((prev) => {
-                return {
-                    ...prev,
-                    messages: [...prev.messages, { role: 'user', content: message }, assiMessage]
-                };
-            })
-        }
-
+        mutation.mutate({ model, messages: reqMessage.messages })
         setIsLoading(false);
     }
 
@@ -73,66 +119,36 @@ export const TextGPTForBackEnd = ({ user }: Props) => {
         main(values)
     }
 
-    const onChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
-        // console.log('change:', e.target.value);
-    }
-
-    const handleChange = (value: string) => {
-        console.log(`selected ${value}`);
-    }
-
-    // Filter `option.label` match the user type `input`
-    const filterOption = (input: string, option?: { label: string; value: string }) =>
-        (option?.label ?? '').toLowerCase().includes(input.toLowerCase());
+    const onReset = () => {
+        form.resetFields();
+    };
 
     useEffect(() => {
         if (!chatLoading && !isError) {
             console.log({ chatRoomData })
-            setTextGPTObject(chatRoomData.results[0].GPTTextRequest as GPTTextRequest)
+            if (!chatRoomData.isSuccess) {
+                // setTextGPTObject([]);
+                return;
+            }
+            // setTextGPTObject(chatRoomData.results[0].GPTTextRequest as GPTTextRequest)
         }
     }, [chatRoomData, chatLoading, isError])
 
+    const backButton = () => {
+        router.replace('/girl-friend/friends')
+    }
 
-    useEffect(() => {
-        async function useEffectAsync() {
-            // let fineTunedList = await getFineTuningJobsList();
-            // let lists = {
-            //     label: 'fineTuningJobs',
-            //     options: [...fineTunedList]
-            //         .map((val) => { return { value: val.fine_tuned_model, label: val.id } }
-
-            //         )
-            // };
-            // let modelList = await getModels();
-
-            setSelectValue([
-                {
-                    label: 'default Model',
-                    options: [{ value: 'gpt-3.5-turbo', label: 'gpt-3.5-turbo' }
-                    ]
-                }]);
-        }
-        useEffectAsync();
-    }, [])
-
-    // useEffect(() => {
-    //     // if (Object.keys(textGPTObject).length > 0) {
-    //     localStorage.setItem(user, JSON.stringify(textGPTObject))
-    //     console.log({ messageLogs: textGPTObject }, localStorage.getItem(user))
-    //     // }
-
-    // }, [textGPTObject])
 
     return (
         <Flex gap='middle' vertical>
-            {textGPTObject && <KakaoTalkChatRoom user={chatRoomData.results[0].user} assistant={chatRoomData.results[0].assistant} data={textGPTObject} />}
-            {isLoading && <Spin />}
+            <Flex gap='middle' align={'center'} >
+                <Button type="primary" onClick={backButton}>뒤로 가기</Button>
+                <h3>{chatRoomData && chatRoomData.isSuccess && chatRoomData.results[0].title}</h3>
+            </Flex>
+            {chatRoomData && chatRoomData.isSuccess && <KakaoTalkChatRoom isLoading={isLoading} user={chatRoomData.results[0].user} assistant={chatRoomData.results[0].assistant} data={chatRoomData.results[0].GPTTextRequest} />}
             <Form form={form} name='nest-messages' onFinish={onFinish} style={{ minWidth: 600 }}>
-                {/* <Form.Item name={'model'} label='model'>
-                    <Select style={{ width: 120 }} showSearch onChange={handleChange} options={selectValue} filterOption={filterOption}></Select>
-                </Form.Item> */}
                 <Form.Item name={'message'}>
-                    <TextArea showCount maxLength={500} onChange={onChange} placeholder='can resize'></TextArea>
+                    <TextArea showCount maxLength={500} placeholder='can resize'></TextArea>
                 </Form.Item>
                 <Form.Item>
                     <Button type="primary" htmlType='submit'>Submit</Button>

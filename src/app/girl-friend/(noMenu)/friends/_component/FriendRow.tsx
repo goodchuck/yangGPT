@@ -1,31 +1,37 @@
 "use client"
+import { UserTypes } from "@/types/user/types";
 import { useRouter } from "next/navigation";
+
+type Props = {
+    User: UserTypes
+}
 
 /**
  * 카카오톡 친구 하나당 행
  * @returns 
  */
-export const FriendRow = () => {
+export const FriendRow = ({ User }: Props) => {
     const router = useRouter();
-
+    // console.log({ User });
+    const { id, nickname, image, statusMessage } = User;
     const onDoubleClickEvent = () => {
-        let name = 'karina';
-        router.push(`/girl-friend/chatting/${name}`)
+        // let name = 'karina';
+        router.push(`/girl-friend/chatting/${id}`)
     }
 
     return (
         <li onDoubleClick={onDoubleClickEvent}>
             <div>
                 <img
-                    src={'/icons/user/카리나1.PNG'}
+                    src={image}
                     alt="profile Image"
                 //   onClick={profileImgClick}
                 />
                 <div>
                     <p>
-                        <b>{'카리나'}</b>
+                        <b>{nickname}</b>
                     </p>
-                    <p>{'에스파 소속이에요!'}</p>
+                    <p>{statusMessage}</p>
                 </div>
 
             </div>
