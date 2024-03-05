@@ -326,6 +326,46 @@ const ChattingRooms: ChattingRoomsTypes[] = [
                     content:
                         "넌 남자 선생님이고 프론트엔드 기술을 알려주고 착한말투를사용해",
                 },
+                {
+                    role: "user",
+                    content:
+                        "깃 커밋에 이미지소스들 추가한거 넣으려고하는데 이거 커밋메시지 규칙을 뭐로할까요?",
+                },
+                {
+                    role: "assistant",
+                    content:
+                        '좋은 질문이네요! 이미지 파일들을 추가하는 경우, 커밋 메시지로는 해당 변경사항을 명확히 설명하는 것이 좋습니다. 예를 들면, "Add images for new feature" 또는 "Include image sources in git commit" 등으로 작성하시면 될 것 같아요. 변화를 명확하게 설명해주는 것이 좋은 커밋 메시지의 중요한 부분입니다.',
+                },
+                {
+                    role: "user",
+                    content:
+                        "그 앞에 feat : or fix : or design : 이런식으로 붙이는경우있는데 이 케이스로 알려주실수있나요?",
+                },
+                {
+                    role: "assistant",
+                    content:
+                        "물론이죠! 커밋 메시지의 시작 부분에는 일반적으로 `feat:`, `fix:`, `design:`, `docs:`, `style:` 등과 같이 접두사를 붙이는게 일반적입니다. \n\n- `feat:` : 새로운 기능 추가\n- `fix:` : 버그 수정\n- `design:` : 디자인 관련 변경\n- `docs:` : 문서 관련 변경\n- `style:` : 코드 포맷팅이나 스타일 변경\n\n따라서 이미지 파일을 추가하는 경우 `feat: Add images for new feature`과 같이 작성하시면 될 것입니다. 이렇게 작성하면 커밋 메시지가 더 읽기 쉽고 목적을 명확하게 전달할 수 있습니다.",
+                },
+                {
+                    role: "user",
+                    content:
+                        'Next.js에서 "use client"된 컴포넌트에서 useQuery쓸때 그전에 서버컴포넌트에서 prefetchQuery를했으면 그 데이터를 가져오나요?',
+                },
+                {
+                    role: "assistant",
+                    content:
+                        '네, Next.js에서 "use client"된 컴포넌트에서 useQuery를 사용할 때 서버측 컴포넌트에서 prefetchQuery를 했다면 해당 데이터를 사용할 수 있습니다. prefetchQuery를 사용하면 데이터가 사전에 가져와 캐시에 저장되므로 클라이언트 측에서 해당 데이터에 즉시 액세스할 수 있습니다.\n\n따라서 클라이언트 측에서 useQuery를 사용하여 데이터를 가져오더라도, prefetchQuery를 통해 미리 가져온 데이터가 있다면 서버 측에서 이미 가져온 데이터를 재사용할 수 있어 불필요한 중복 요청을 줄일 수 있습니다. 이를 통해 성능 향상이 기대됩니다.',
+                },
+                {
+                    role: "user",
+                    content:
+                        '그럼 서버컴포넌트에서 preFetch하지않으면 "use client"된 컴포넌트에선 useQuery사용이 안되나요?',
+                },
+                {
+                    role: "assistant",
+                    content:
+                        '서버측 컴포넌트에서 prefetchQuery를 하지 않았다면 클라이언트 측 컴포넌트에서 "use client"를 통해 useQuery를 사용할 수 있습니다. Next.js에서는 서버사이드 렌더링 및 데이터 프리페칭을 위한 다양한 방법을 제공하며, `prefetchQuery`는 데이터를 미리 가져와서 클라이언트 측의 useQuery에서 사용할 수 있도록 하는 방법 중 하나입니다.\n\n따라서 만약 서버측에서 데이터를 미리 가져오지 않았다면 클라이언트 측에서 useQuery를 사용할 때 데이터를 요청하고 받아올 수 있습니다. prefetchQuery를 사용하는 것은 데이터를 사전에 가져와 성능을 최적화하는 방법 중 하나이며, 필수적인 것은 아닙니다.',
+                },
             ],
             model: "gpt-3.5-turbo",
         },
