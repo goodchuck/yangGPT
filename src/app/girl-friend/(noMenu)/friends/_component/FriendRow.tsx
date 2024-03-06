@@ -13,9 +13,8 @@ type Props = {
 export const FriendRow = ({ User }: Props) => {
     const router = useRouter();
     // console.log({ User });
-    const { id, nickname, image, statusMessage } = User;
+    const { id, username, status_message } = User;
     const onDoubleClickEvent = () => {
-        // let name = 'karina';
         router.push(`/girl-friend/chatting/${id}`)
     }
 
@@ -23,15 +22,15 @@ export const FriendRow = ({ User }: Props) => {
         <li onDoubleClick={onDoubleClickEvent}>
             <div>
                 <img
-                    src={image}
+                    src={`/icons/user/${username}1.PNG`}
                     alt="profile Image"
                 //   onClick={profileImgClick}
                 />
                 <div>
                     <p>
-                        <b>{nickname}</b>
+                        <b>{username}</b>
                     </p>
-                    <p>{statusMessage}</p>
+                    <p>{status_message}</p>
                 </div>
 
             </div>

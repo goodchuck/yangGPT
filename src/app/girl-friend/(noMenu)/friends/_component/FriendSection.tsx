@@ -6,10 +6,14 @@ import { UserTypes } from "@/types/user/types";
 
 
 export const FriendSection = () => {
-    const { data } = useQuery({
+    const { data, isLoading } = useQuery({
         queryKey: ['getFriends', 'test'],
         queryFn: getFriends
     })
+
+    if (isLoading) {
+        return (<div>로딩중</div>)
+    }
 
     return (
         <div className='friends'>

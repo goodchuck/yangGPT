@@ -22,7 +22,12 @@ export const getUserObject = async ({
     return res.json();
 };
 
-export const getFriends = async ({
+/**
+ * mock버전 api
+ * @param param0
+ * @returns
+ */
+export const getFriendsForMock = async ({
     queryKey,
 }: {
     queryKey: [string, string];
@@ -44,3 +49,25 @@ export const getFriends = async ({
 
     return res.json();
 };
+
+export const getFriendsForBack = async ({
+    queryKey,
+}: {
+    queryKey: [string, string];
+}) => {
+    const [_1, userId] = queryKey;
+    const res = await fetch(`/api/postgres/user`, {
+        next: {
+            tags: ["getFriends", userId],
+        },
+        // credentials: 'include'
+    });
+    console.log("getFriends", userId, res.ok);
+    if (!res.ok) {
+        throw new Error("Failed to fetch data");
+    }
+
+    return res.json();
+};
+
+export const getFriends = getFriendsForBack;
