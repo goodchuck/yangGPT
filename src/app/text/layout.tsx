@@ -1,7 +1,7 @@
 import { Flex } from "antd";
 import { ReactNode } from "react";
 
-type Props = { children: ReactNode, modal: ReactNode }
+type Props = { children: ReactNode }
 
 
 export default function TextLayout({ children }: Props) {

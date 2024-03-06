@@ -1,3 +1,4 @@
+"use client"
 import { UserTypes } from '@/types/user/types';
 import style from './kakao.module.css';
 import { AssistantMessage, GPTTextRequest, SystemMessage, UserMessage } from '@/types/GPT/type';

@@ -1,3 +1,5 @@
+//@ts-nocheck
+
 import { http, HttpResponse, StrictResponse } from "msw";
 import { faker } from "@faker-js/faker";
 import fs from "fs";
@@ -384,42 +386,42 @@ const testPost = {
 };
 
 export const handlers = [
-    http.post("/api/login", async ({ request }) => {
-        console.log("로그인");
-        const body = await request.json();
-        return HttpResponse.json(
-            {
-                id: body?.id,
-                password: body?.password,
-                image: faker.image.avatar(),
-            },
-            {
-                headers: {
-                    "Set-Cookie": "connect.sid=msw-cookie;HttpOnly;Path=/",
-                },
-            }
-        );
-    }),
-    http.post("/api/logout", () => {
-        console.log("로그아웃");
-        return new HttpResponse(null, {
-            headers: {
-                "Set-Cookie": "connect.sid=;HttpOnly;Path=/;Max-Age=0",
-            },
-        });
-    }),
-    http.post("/api/users", async ({ request }) => {
-        console.log("회원가입");
-        // return HttpResponse.text(JSON.stringify('user_exists'), {
-        //   status: 403,
-        // })
-        return HttpResponse.text(JSON.stringify("ok"), {
-            headers: {
-                "Set-Cookie":
-                    "connect.sid=msw-cookie;HttpOnly;Path=/;Max-Age=0",
-            },
-        });
-    }),
+    // http.post("/api/login", async ({ request }) => {
+    //     console.log("로그인");
+    //     const body = await request.json();
+    //     return HttpResponse.json(
+    //         {
+    //             id: body?.id,
+    //             password: body?.password,
+    //             image: faker.image.avatar(),
+    //         },
+    //         {
+    //             headers: {
+    //                 "Set-Cookie": "connect.sid=msw-cookie;HttpOnly;Path=/",
+    //             },
+    //         }
+    //     );
+    // }),
+    // http.post("/api/logout", () => {
+    //     console.log("로그아웃");
+    //     return new HttpResponse(null, {
+    //         headers: {
+    //             "Set-Cookie": "connect.sid=;HttpOnly;Path=/;Max-Age=0",
+    //         },
+    //     });
+    // }),
+    // http.post("/api/users", async ({ request }) => {
+    //     console.log("회원가입");
+    //     // return HttpResponse.text(JSON.stringify('user_exists'), {
+    //     //   status: 403,
+    //     // })
+    //     return HttpResponse.text(JSON.stringify("ok"), {
+    //         headers: {
+    //             "Set-Cookie":
+    //                 "connect.sid=msw-cookie;HttpOnly;Path=/;Max-Age=0",
+    //         },
+    //     });
+    // }),
     // 유저 오브젝트를 얻어옴
     http.get("/api/getUser/:userId", ({ request, params }) => {
         // const url = new URL(request.url);

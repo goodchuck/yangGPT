@@ -88,7 +88,7 @@ export const TextGPT = ({ user }: Props) => {
         (option?.label ?? '').toLowerCase().includes(input.toLowerCase());
 
     useEffect(() => {
-        async function useEffectAsync() {
+        async function testFunction() {
             // let fineTunedList = await getFineTuningJobsList();
             // let lists = {
             //     label: 'fineTuningJobs',
@@ -106,7 +106,7 @@ export const TextGPT = ({ user }: Props) => {
                     ]
                 }]);
         }
-        useEffectAsync();
+        testFunction();
     }, [])
 
     useEffect(() => {
