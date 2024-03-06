@@ -70,4 +70,18 @@ export const getFriendsForBack = async ({
     return res.json();
 };
 
+export const getUser = async ({ queryKey }: { queryKey: [string, string] }) => {
+    const [_1, userId] = queryKey;
+    const res = await fetch(`/api/postgres/user?userId=${userId}`, {
+        next: {
+            tags: ["getUser", userId],
+        },
+    });
+
+    if (!res.ok) {
+        throw new Error("Failed to fetch data");
+    }
+    return res.json();
+};
+
 export const getFriends = getFriendsForBack;

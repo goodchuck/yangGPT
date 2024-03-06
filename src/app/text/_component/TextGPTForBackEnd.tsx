@@ -3,11 +3,9 @@ import { useEffect, useState } from "react";
 
 import { Flex, Input, Form, Button, Spin, Select } from 'antd';
 import { getText } from '@/app/api/text';
-import { AssistantMessage, GPTTextRequest } from "@/types/GPT/type";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { getChatRoom } from "@/app/api/chatRoom/chatRoom";
 import { KakaoTalkChatRoom } from "./kakaoTalk/kakaoTalk";
-import { ChattingRoomsTypes } from "@/types/user/types";
 import { useRouter } from "next/navigation";
 
 const { TextArea } = Input;
@@ -25,13 +23,13 @@ export const TextGPTForBackEnd = ({ user }: Props) => {
     /**
      * 상대방의 id를 통해 채팅방을 가져온다.
      */
-    const { data: chatRoomData, isLoading: chatLoading, isError } = useQuery<any, Object, any, [_1: string, _2: string]>({
+    const { data: chatRoomData, isLoading: chatLoading, isError } = useQuery<{ isSuccess: boolean, results: chatRoomTypes[] }, Object, { isSuccess: boolean, results: chatRoomTypes[] }, [_1: string, _2: string]>({
         queryKey: ['getChatRoom', user],
         queryFn: getChatRoom
     })
 
-    const [isLoading, setIsLoading] = useState<boolean>(false);
 
+    const [isLoading, setIsLoading] = useState<boolean>(false);
 
     const mutation = useMutation({
         mutationFn: async (e: any) => {
@@ -39,7 +37,7 @@ export const TextGPTForBackEnd = ({ user }: Props) => {
             let { model, messages } = e;
 
             // return;
-            return await getText(model, messages);
+            return await getText({ model, messages });
         },
         async onMutate(e: any) {
             let { model, messages } = e;
@@ -49,13 +47,13 @@ export const TextGPTForBackEnd = ({ user }: Props) => {
             console.log('queryKeys', queryKeys, e);
             queryKeys.forEach((queryKey) => {
                 if (queryKey[0] === 'getChatRoom') {
-                    const value: { isSuccess: boolean, results: ChattingRoomsTypes[] } | undefined = queryClient.getQueryData(queryKey);
+                    const value: { isSuccess: boolean, results: chatRoomTypes[] } | undefined = queryClient.getQueryData(queryKey);
                     if (value && value.isSuccess) {
                         console.log({ value })
                         let lastMessage = messages.at(-1);
                         const shallow = JSON.parse(JSON.stringify(value));
-                        shallow.results[0].GPTTextRequest.messages = [
-                            ...shallow.results[0].GPTTextRequest.messages,
+                        shallow.results[0].messages = [
+                            ...shallow.results[0].messages,
                             lastMessage
                         ]
                         queryClient.setQueryData(queryKey, shallow);
@@ -69,20 +67,33 @@ export const TextGPTForBackEnd = ({ user }: Props) => {
                 let lastUserMessage = variable.messages.at(-1);
                 let lastAssMessage = { role: 'assistant', content: response };
 
-                let result = await fetch(`${process.env.NEXT_PUBLIC_BASE_URL}/api/add/message`, {
+                let result = await fetch(`/api/postgres/chatRoom/add-chat-message`, {
                     method: 'post',
                     headers: {
                         'Content-Type': 'application/json'
                     },
                     body: JSON.stringify({
                         message: [lastUserMessage, lastAssMessage],
-                        assistant: chatRoomData.results[0].assistant
+                        roomId: chatRoomData?.results[0].room_id
                     })
                 })
                 if (result.ok) {
                     queryClient.invalidateQueries({ queryKey: ['getChatRoom', user] });
                     onReset();
                 }
+
+
+                // let result = await fetch(`${process.env.NEXT_PUBLIC_BASE_URL}/api/add/message`, {
+                //     method: 'post',
+                //     headers: {
+                //         'Content-Type': 'application/json'
+                //     },
+                //     body: JSON.stringify({
+                //         message: [lastUserMessage, lastAssMessage],
+                //         assistant: chatRoomData.results[0].assistant
+                //     })
+                // })
+                setIsLoading(false);
 
             }
         },
@@ -94,25 +105,28 @@ export const TextGPTForBackEnd = ({ user }: Props) => {
             console.log('queryKeys', queryKeys,);
             queryKeys.forEach((queryKey) => {
                 if (queryKey[0] === 'getChatRoom') {
-                    const value: { isSuccess: boolean, results: ChattingRoomsTypes[] } | undefined = queryClient.getQueryData(queryKey);
+                    const value: { isSuccess: boolean, results: chatRoomTypes[] } | undefined = queryClient.getQueryData(queryKey);
                     if (value && value.isSuccess) {
                         console.log({ value })
                         const shallow = JSON.parse(JSON.stringify(value));
-                        shallow.results[0].GPTTextRequest.messages = shallow.results[0].GPTTextRequest.messages.slice(0, -1);
+                        shallow.results[0].messages = shallow.results[0].messages.slice(0, -1);
                         queryClient.setQueryData(queryKey, shallow);
                     }
                 }
             })
+            setIsLoading(false);
         }
     })
 
     async function main({ message, model = 'gpt-3.5-turbo' }: { model: string, message: string }) {
         setIsLoading(true);
-        let object = chatRoomData.results[0].GPTTextRequest;
-        let reqMessage = JSON.parse(JSON.stringify(object));
-        reqMessage.messages = [...reqMessage.messages, { role: 'user', content: message }];
-        mutation.mutate({ model, messages: reqMessage.messages })
-        setIsLoading(false);
+        if (chatRoomData) {
+            let messages = chatRoomData.results[0].messages;
+            let reqMessage = JSON.parse(JSON.stringify(messages));
+            reqMessage = [...reqMessage, { role: 'user', content: message }];
+            mutation.mutate({ model, messages: reqMessage })
+        }
+
     }
 
     const onFinish = (values: any) => {
@@ -124,7 +138,7 @@ export const TextGPTForBackEnd = ({ user }: Props) => {
     };
 
     useEffect(() => {
-        if (!chatLoading && !isError) {
+        if (chatRoomData && !chatLoading && !isError) {
             console.log({ chatRoomData })
             if (!chatRoomData.isSuccess) {
                 // setTextGPTObject([]);
@@ -143,9 +157,9 @@ export const TextGPTForBackEnd = ({ user }: Props) => {
         <Flex gap='middle' vertical>
             <Flex gap='middle' align={'center'} >
                 <Button type="primary" onClick={backButton}>뒤로 가기</Button>
-                <h3>{chatRoomData && chatRoomData.isSuccess && chatRoomData.results[0].title}</h3>
+                <h3>{chatRoomData && chatRoomData.isSuccess && chatRoomData.results[0].room_name}</h3>
             </Flex>
-            {chatRoomData && chatRoomData.isSuccess && <KakaoTalkChatRoom isLoading={isLoading} user={chatRoomData.results[0].user} assistant={chatRoomData.results[0].assistant} data={chatRoomData.results[0].GPTTextRequest} />}
+            {chatRoomData && chatRoomData.isSuccess && <KakaoTalkChatRoom isLoading={isLoading} data={chatRoomData.results[0]} />}
             <Form form={form} name='nest-messages' onFinish={onFinish} style={{ minWidth: 600 }}>
                 <Form.Item name={'message'}>
                     <TextArea showCount maxLength={500} placeholder='can resize'></TextArea>

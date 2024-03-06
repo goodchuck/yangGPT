@@ -4,12 +4,14 @@ import style from './kakao.module.css';
 import { AssistantMessage, GPTTextRequest, SystemMessage, UserMessage } from '@/types/GPT/type';
 import { useEffect, useRef } from 'react';
 import { Spin } from 'antd';
+import { dataTagSymbol, useQuery } from '@tanstack/react-query';
+import { getUser } from '@/app/api/user/userAPI';
 // import icon from '/public/icons/user/user.svg';
 
 type Props = {
     user?: UserTypes,
     assistant?: UserTypes,
-    data?: GPTTextRequest,
+    data?: chatRoomTypes,
     isLoading?: boolean
 }
 
@@ -18,17 +20,35 @@ type Props = {
  * 일단 1:1 채팅으로 만듬
  * @returns 
  */
-export const KakaoTalkChatRoom = ({ data, user, assistant, isLoading = false }: Props) => {
+export const KakaoTalkChatRoom = ({ data, isLoading = false }: Props) => {
     let testRef = useRef<HTMLDivElement | null>(null);
 
+    const assistant = useQuery({
+        queryKey: ['getUser', String(data?.user_id)],
+        queryFn: getUser
+    })
+    const me = useQuery({
+        queryKey: ['getUser', String(1)],
+        queryFn: getUser
+    })
+
     useEffect(() => {
-        testRef.current?.scrollIntoView({ behavior: 'smooth' });
-    }, [data, user, assistant, isLoading])
+        if (data && !isLoading) {
+            testRef.current?.scrollIntoView({ behavior: 'smooth' });
+        }
+
+    }, [data, isLoading])
+
+    if (assistant.isLoading || me.isLoading) {
+        return (<div>로딩중</div>)
+    }
+
+
 
     return (
         <div className={style.wrap}>
-            {data?.messages.map((row, i) => (<Chats key={i} row={row} user={user} assistant={assistant}></Chats>))}
-            {isLoading && assistant && <LoadingComponent assistant={assistant} />}
+            {data?.messages.map((row, i) => (<Chats key={i} row={row} me={me.data.results[0]} assistant={assistant.data.results[0]}></Chats>))}
+            {isLoading && <LoadingComponent assistant={assistant.data.results[0]} />}
             <div ref={testRef} />
         </div>
     )
@@ -36,11 +56,11 @@ export const KakaoTalkChatRoom = ({ data, user, assistant, isLoading = false }: 
 
 type ChatProps = {
     row: SystemMessage | UserMessage | AssistantMessage,
-    user?: UserTypes,
+    me?: UserTypes,
     assistant?: UserTypes,
 }
 
-export const Chats = ({ row, user, assistant }: ChatProps) => {
+export const Chats = ({ row, me, assistant }: ChatProps) => {
     if (row.role === 'system') return;
     let isCh1 = row.role === 'user' ? false : true
     return (
@@ -49,11 +69,11 @@ export const Chats = ({ row, user, assistant }: ChatProps) => {
                 <div className={`${style.chat} ${style.ch1}`}>
                     <div className={style.icon}>
                         <i className={`${style['fa-solid']} ${style['fa-user']}`}>
-                            <img src={assistant?.image} alt='아이콘' style={{ width: '100%', height: '100%' }} />
+                            <img src={`/icons/user/${assistant?.id}1.PNG`} alt='아이콘' style={{ width: '100%', height: '100%' }} />
                         </i>
                     </div>
                     <div className={style.textContainer}>
-                        <p className={style.name}>{assistant?.nickname}</p>
+                        <p className={style.name}>{assistant?.username}</p>
                         <div className={style.textbox}>
                             {row.content}
                         </div>
@@ -64,7 +84,7 @@ export const Chats = ({ row, user, assistant }: ChatProps) => {
                 <div className={`${style.chat} ${style.ch2}`}>
                     <div className={style.icon}>
                         <i className={`${style['fa-solid']} ${style['fa-user']}`}>
-                            <img src={user?.image} alt='아이콘' style={{ width: '100%', height: '100%' }} />
+                            <img src={`/icons/user/${me?.id}1.svg`} alt='아이콘' style={{ width: '100%', height: '100%' }} />
                         </i>
                     </div>
                     <div className={style.textbox}>{row.content}</div>
@@ -83,11 +103,11 @@ export const LoadingComponent = ({ assistant }: LoadingProps) => {
             <div className={`${style.chat} ${style.ch1}`}>
                 <div className={style.icon}>
                     <i className={`${style['fa-solid']} ${style['fa-user']}`}>
-                        <img src={assistant?.image} alt='아이콘' style={{ width: '100%', height: '100%' }} />
+                        <img src={`/icons/user/${assistant?.id}1.PNG`} alt='아이콘' style={{ width: '100%', height: '100%' }} />
                     </i>
                 </div>
                 <div className={style.textContainer}>
-                    <p className={style.name}>{assistant?.nickname}</p>
+                    <p className={style.name}>{assistant?.username}</p>
                     <div className={style.textbox}>
                         <Spin />
                     </div>

@@ -1,11 +1,18 @@
 "use server";
+import { GPTTextRequest } from "@/types/GPT/type";
 import OpenAI from "openai";
 const openai = new OpenAI({ apiKey: process.env.OPENAI_API_KEY });
-export const getText = async (model: string, message: []) => {
+export const getText = async ({ model, messages }: GPTTextRequest) => {
     try {
-        console.log("getText", { model, message });
+        // console.log("getText", { model, messages });
+        let filteredMessage = messages.map((row) => {
+            let { role, content } = row;
+            return { role, content };
+        });
+
         const completion = await openai.chat.completions.create({
-            messages: message,
+            //@ts-ignore
+            messages: filteredMessage,
             model: model,
         });
         console.log(completion.choices[0]);

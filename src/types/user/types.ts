@@ -19,10 +19,3 @@ export interface UserTypes {
     user_id: number;
     username: string;
 }
-
-export interface ChattingRoomsTypes {
-    user: UserTypes;
-    assistant: UserTypes;
-    title: string;
-    GPTTextRequest: GPTTextRequest;
-}

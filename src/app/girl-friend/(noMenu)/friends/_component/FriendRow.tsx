@@ -13,9 +13,9 @@ type Props = {
 export const FriendRow = ({ User }: Props) => {
     const router = useRouter();
     // console.log({ User });
-    const { id, username, status_message } = User;
+    const { id, username, status_message, user_id } = User;
     const onDoubleClickEvent = () => {
-        router.push(`/girl-friend/chatting/${id}`)
+        router.push(`/girl-friend/chatting/${user_id}`)
     }
 
     return (
