@@ -2,9 +2,9 @@
 import { UserTypes } from '@/types/user/types';
 import style from './kakao.module.css';
 import { AssistantMessage, GPTTextRequest, SystemMessage, UserMessage } from '@/types/GPT/type';
-import { useEffect, useRef } from 'react';
+import { useEffect, useRef, forwardRef } from 'react';
 import { Spin } from 'antd';
-import { dataTagSymbol, useQuery } from '@tanstack/react-query';
+import { dataTagSymbol, useQueries, useQuery } from '@tanstack/react-query';
 import { getUser } from '@/app/api/user/userAPI';
 // import icon from '/public/icons/user/user.svg';
 
@@ -20,39 +20,49 @@ type Props = {
  * 일단 1:1 채팅으로 만듬
  * @returns 
  */
-export const KakaoTalkChatRoom = ({ data, isLoading = false }: Props) => {
-    let testRef = useRef<HTMLDivElement | null>(null);
+export const KakaoTalkChatRoom = forwardRef<HTMLDivElement, Props>(({ data, isLoading = false }, ref) => {
+    // let testRef = useRef<HTMLDivElement | null>(null);
 
-    const assistant = useQuery({
-        queryKey: ['getUser', String(data?.user_id)],
-        queryFn: getUser
+
+    // useQuries
+    const userQuries = useQueries({
+        queries: [
+            {
+                queryKey: ['getUser', String(data?.user_id)],
+                queryFn: getUser
+            },
+            {
+                queryKey: ['getUser', String(1)],
+                queryFn: getUser
+            }
+        ]
     })
-    const me = useQuery({
-        queryKey: ['getUser', String(1)],
-        queryFn: getUser
-    })
+
+    const assistant = userQuries[0];
+    const me = userQuries[1];
 
     useEffect(() => {
-        if (data && !isLoading) {
-            testRef.current?.scrollIntoView({ behavior: 'smooth' });
+        if (data && !(assistant.isLoading || me.isLoading)) {
+            ref?.current?.scrollIntoView({ behavior: 'smooth' });
         }
 
-    }, [data, isLoading])
+    }, [data, assistant.isLoading, me.isLoading])
 
     if (assistant.isLoading || me.isLoading) {
-        return (<div>로딩중</div>)
+        return (<div className={style.wrap}>
+            {isLoading && <LoadingComponent assistant={assistant.data.results[0]} />}
+        </div>)
     }
-
-
 
     return (
         <div className={style.wrap}>
             {data?.messages.map((row, i) => (<Chats key={i} row={row} me={me.data.results[0]} assistant={assistant.data.results[0]}></Chats>))}
             {isLoading && <LoadingComponent assistant={assistant.data.results[0]} />}
-            <div ref={testRef} />
+            <div ref={ref} />
         </div>
     )
-}
+
+});
 
 type ChatProps = {
     row: SystemMessage | UserMessage | AssistantMessage,

@@ -22,7 +22,7 @@ export const FriendRow = ({ User }: Props) => {
         <li onDoubleClick={onDoubleClickEvent}>
             <div>
                 <img
-                    src={`/icons/user/${username}1.PNG`}
+                    src={`/icons/user/${id}1.PNG`}
                     alt="profile Image"
                 //   onClick={profileImgClick}
                 />

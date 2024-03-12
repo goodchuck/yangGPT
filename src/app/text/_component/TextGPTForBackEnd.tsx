@@ -1,5 +1,5 @@
 "use client"
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 
 import { Flex, Input, Form, Button, Spin, Select } from 'antd';
 import { getText } from '@/app/api/text';
@@ -19,7 +19,7 @@ export const TextGPTForBackEnd = ({ user }: Props) => {
     if (!user) user = 'test';
     const queryClient = useQueryClient();
     const router = useRouter();
-
+    const testRef = useRef<HTMLDivElement>(null);
     /**
      * 상대방의 id를 통해 채팅방을 가져온다.
      */
@@ -47,6 +47,9 @@ export const TextGPTForBackEnd = ({ user }: Props) => {
             console.log('queryKeys', queryKeys, e);
             queryKeys.forEach((queryKey) => {
                 if (queryKey[0] === 'getChatRoom') {
+                    if (testRef.current) {
+                        testRef.current.scrollIntoView({ behavior: 'smooth' })
+                    }
                     const value: { isSuccess: boolean, results: chatRoomTypes[] } | undefined = queryClient.getQueryData(queryKey);
                     if (value && value.isSuccess) {
                         console.log({ value })
@@ -138,8 +141,8 @@ export const TextGPTForBackEnd = ({ user }: Props) => {
     };
 
     useEffect(() => {
+        // console.log({ chatRoomData })
         if (chatRoomData && !chatLoading && !isError) {
-            console.log({ chatRoomData })
             if (!chatRoomData.isSuccess) {
                 // setTextGPTObject([]);
                 return;
@@ -155,20 +158,24 @@ export const TextGPTForBackEnd = ({ user }: Props) => {
 
     return (
         <Flex gap='middle' vertical>
-            <Flex gap='middle' align={'center'} >
-                <Button type="primary" onClick={backButton}>뒤로 가기</Button>
-                <h3>{chatRoomData && chatRoomData.isSuccess && chatRoomData.results[0].room_name}</h3>
-            </Flex>
-            {chatRoomData && chatRoomData.isSuccess && <KakaoTalkChatRoom isLoading={isLoading} data={chatRoomData.results[0]} />}
-            <Form form={form} name='nest-messages' onFinish={onFinish} style={{ minWidth: 600 }}>
-                <Form.Item name={'message'}>
-                    <TextArea showCount maxLength={500} placeholder='can resize'></TextArea>
-                </Form.Item>
-                <Form.Item>
-                    <Button type="primary" htmlType='submit'>Submit</Button>
-                </Form.Item>
+            {chatLoading ? (<Spin></Spin>)
+                : (<>
+                    <Flex gap='middle' align={'center'} >
+                        <Button type="primary" onClick={backButton}>뒤로 가기</Button>
+                        <h3>{chatRoomData && chatRoomData.isSuccess && chatRoomData.results.length > 0 && chatRoomData.results[0].room_name}</h3>
+                    </Flex>
+                    {chatRoomData && chatRoomData.isSuccess && chatRoomData.results.length > 0 && <KakaoTalkChatRoom isLoading={isLoading} data={chatRoomData.results[0]} ref={testRef} />}
+                    <Form form={form} name='nest-messages' onFinish={onFinish} style={{ minWidth: 600 }}>
+                        <Form.Item name={'message'}>
+                            <TextArea showCount maxLength={500} placeholder='can resize'></TextArea>
+                        </Form.Item>
+                        <Form.Item>
+                            <Button type="primary" htmlType='submit'>Submit</Button>
+                        </Form.Item>
 
-            </Form>
+                    </Form>
+                </>)}
+
         </Flex>
 
     )

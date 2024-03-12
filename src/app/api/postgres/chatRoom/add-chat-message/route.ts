@@ -1,7 +1,12 @@
-import { AssistantMessage, SystemMessage, UserMessage } from "@/types/GPT/type";
 import { sql } from "@vercel/postgres";
 import { NextResponse } from "next/server";
 
+/**
+ * 채팅 메시지를 추가하는 로직
+ * message와 roomId를 받아 마지막 메시지들을 추가한다.
+ * @param request
+ * @returns
+ */
 export async function POST(request: Request) {
     try {
         // const requestBody = await request.text();
@@ -36,7 +41,7 @@ export async function POST(request: Request) {
             { isSuccess: true, message: "데이터가 성공적으로 추가되었습니다." },
             { status: 200 }
         );
-    } catch (error) {
+    } catch (error: any) {
         return NextResponse.json({ error: error.message }, { status: 500 });
     }
 }

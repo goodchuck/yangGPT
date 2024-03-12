@@ -52,6 +52,9 @@ const items: MenuItem[] = [
     getItem('text', '/text', <AppstoreOutlined />, [
         getItem('gpt3_5', '/text/gpt3_5'),
     ]),
+    getItem('카카오톡컨셉', '/kakaoTalk', <AppstoreOutlined />, [
+        getItem('친구들', '/girl-friend/friends'),
+    ]),
 ];
 
 export const SideBar = () => {

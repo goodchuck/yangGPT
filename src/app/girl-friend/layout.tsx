@@ -7,17 +7,17 @@ export default async function girlFirendLayout({
 }: {
     children: React.ReactNode
 }) {
-    const queryClient = new QueryClient();
-    await queryClient.prefetchQuery({
-        queryKey: ['getFriends', 'test'],
-        queryFn: getFriends
-    })
-    const dehydratedState = dehydrate(queryClient);
+    // const queryClient = new QueryClient();
+    // await queryClient.prefetchQuery({
+    //     queryKey: ['getFriends', 'test'],
+    //     queryFn: getFriends
+    // })
+    // const dehydratedState = dehydrate(queryClient);
     return (
         <>
-            <HydrationBoundary state={dehydratedState}>
-                {children}
-            </HydrationBoundary>
+            {/* <HydrationBoundary state={dehydratedState}> */}
+            {children}
+            {/* </HydrationBoundary> */}
         </>
     )
 }
