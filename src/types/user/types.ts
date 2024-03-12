@@ -11,7 +11,7 @@ import { GPTTextRequest } from "../GPT/type";
 // }
 
 export interface UserTypes {
-    create_at: string;
+    create_at?: string;
     email: string;
     id: string;
     password_hash: string;

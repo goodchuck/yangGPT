@@ -85,3 +85,42 @@ export const getUser = async ({ queryKey }: { queryKey: [string, string] }) => {
 };
 
 export const getFriends = getFriendsForBack;
+
+type createUserType = {
+    userId: string;
+    userName: string;
+    eMail: string;
+    passWord: string;
+};
+export const createUser = async (data: createUserType) => {
+    let { userId, userName, eMail, passWord } = data;
+    console.log({ data });
+    const res = await fetch("/api/postgres/user/create", {
+        method: "POST",
+        headers: {
+            "Content-Type": "application/json",
+        },
+        body: JSON.stringify(data),
+    });
+    if (!res.ok) {
+        throw new Error("Failed to fetch data");
+    }
+
+    return res.json();
+};
+export const updateUser = async (data: createUserType) => {
+    // let { userId, userName, eMail, passWord } = data;
+    console.log({ data });
+    const res = await fetch("/api/postgres/user/update", {
+        method: "POST",
+        headers: {
+            "Content-Type": "application/json",
+        },
+        body: JSON.stringify(data),
+    });
+    if (!res.ok) {
+        throw new Error("Failed to fetch data");
+    }
+
+    return res.json();
+};

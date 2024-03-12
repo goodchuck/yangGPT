@@ -72,5 +72,9 @@ export const StyledMainContainer = styled.div`
         &:hover {
             background-color: #eaeaeb;
         }
+
+        &.active {
+            background-color: #eaeaeb;
+        }
     }
 `;
