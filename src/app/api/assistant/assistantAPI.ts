@@ -1,5 +1,14 @@
-export const getAssistants = async () => {
-    const res = await fetch("/api/assistant/list");
+const baseURL = process.env.API_BASE_URL || "http://localhost:3000";
+
+export const getAssistants = async ({ queryKey }: { queryKey: [string] }) => {
+    const [_1] = queryKey;
+    console.log("_1", _1);
+    const res = await fetch(`${baseURL}/api/assistant/list`, {
+        next: {
+            tags: [_1],
+        },
+    });
+    console.log("getAssistants 실행");
     if (!res.ok) {
         throw new Error("error");
     }

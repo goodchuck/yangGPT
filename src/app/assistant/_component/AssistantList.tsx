@@ -1,25 +1,21 @@
 "use client";
 
-import { useQuery } from "@tanstack/react-query";
-import { getAssistants } from "@/app/api/assistant/assistantAPI";
-import { useRouter } from "next/navigation";
+import { useQuery, useQueryClient } from "@tanstack/react-query";
+import { AssistantCard } from "./AssistantCard";
+import { Flex } from "antd";
+import { useEffect } from "react";
 
 export const AssistantList = () => {
-    const router = useRouter();
-    const { data } = useQuery({ queryKey: ['assistant'], queryFn: getAssistants })
-    console.log(data);
+    const queryClient = useQueryClient();
+    let data: { isSuccess: boolean, results: any[] } | undefined = queryClient.getQueryData(['assistant']);
 
-    const onDoubleClickEvent = (assistantId: string) => {
-        router.push(`assistant/chatting/${assistantId}`)
-    }
+    useEffect(() => {
+        console.log(data, queryClient)
+    }, [data])
 
     return (
-        <>
-            <p>AssistantList</p>
-            {data && data.results?.map((data, i) => (<div key={i} onDoubleClick={() => { onDoubleClickEvent(data.id) }}>
-                <p>{data.instructions}</p>
-                <p>{data.name}</p>
-            </div>))}
-        </>
+        <Flex gap={'middle'} >
+            {data && data.results?.map((data, i) => (<AssistantCard key={i} assistant={data} />))}
+        </Flex>
     )
 }

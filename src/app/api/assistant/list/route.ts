@@ -13,13 +13,13 @@ export async function GET(request: Request) {
             order: "desc",
             limit: 20,
         });
-
+        console.log("어시스턴트 리스트 api");
         const jsonResponse = NextResponse.json(
             { isSuccess: true, results: assistantList.data },
             { status: 200 }
         );
         // Disable caching
-        jsonResponse.headers.set("Cache-Control", "no-store");
+        // jsonResponse.headers.set("Cache-Control", "no-store");
 
         return jsonResponse;
     } catch (error) {
