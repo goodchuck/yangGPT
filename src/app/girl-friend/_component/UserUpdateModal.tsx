@@ -1,8 +1,9 @@
 "use client"
 import React, { useState } from "react";
-import { Modal, Form, Input, Button } from 'antd';
+import { Modal, Form, Input, Button, Upload } from 'antd';
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { updateUser } from "@/app/api/user/userAPI";
+import { PlusOutlined } from "@ant-design/icons";
 
 type Props = {
     open: boolean;
@@ -29,6 +30,7 @@ export const UserUpdateModal = ({ open, setOpen, targetUser }: Props) => {
         },
         async onSuccess() {
             queryClient.invalidateQueries({ queryKey: ['getFriends', 'test'] });
+            queryClient.refetchQueries({ queryKey: ['getFriends', 'test'] });
             setOpen(prevState => !prevState);
             onReset();
         }
@@ -43,6 +45,15 @@ export const UserUpdateModal = ({ open, setOpen, targetUser }: Props) => {
 
     const handleCancel = () => {
         setOpen(prevState => !prevState);
+    }
+
+    const normFile = (e: any) => {
+        console.log(e)
+        if (Array.isArray(e)) {
+            return e;
+        }
+
+        return e?.fileList;
     }
 
 
@@ -88,8 +99,14 @@ export const UserUpdateModal = ({ open, setOpen, targetUser }: Props) => {
                 >
                     <Input.TextArea />
                 </Form.Item>
-
-
+                <Form.Item label="Upload" name="profileImage" valuePropName="fileList" getValueFromEvent={normFile}>
+                    <Upload name="files" listType="picture-card">
+                        <button style={{ border: 0, background: 'none' }} type="button">
+                            <PlusOutlined />
+                            <div style={{ marginTop: 8 }}>Upload</div>
+                        </button>
+                    </Upload>
+                </Form.Item>
 
                 <Form.Item wrapperCol={{ offset: 6, span: 16 }}>
                     <Button type="primary" htmlType="submit">

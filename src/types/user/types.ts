@@ -18,4 +18,5 @@ export interface UserTypes {
     status_message?: string;
     user_id: number;
     username: string;
+    profileurl?: string;
 }

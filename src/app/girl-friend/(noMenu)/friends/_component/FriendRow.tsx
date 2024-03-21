@@ -1,7 +1,12 @@
 "use client"
+import { useState } from "react";
 import { UserTypes } from "@/types/user/types";
 import { useRouter } from "next/navigation";
-
+import { DeleteOutlined } from "@ant-design/icons";
+import { StyledFriendRow } from "./StyledFriendRow";
+import { deleteUser } from "@/app/api/user/userAPI";
+import { useQueryClient } from "@tanstack/react-query";
+import { Button, Modal, Result } from "antd";
 type Props = {
     User: UserTypes
     targetUser: number;
@@ -14,29 +19,84 @@ type Props = {
  */
 export const FriendRow = ({ User, targetUser, setTargetUser }: Props) => {
     const router = useRouter();
-    // console.log({ User });
-    const { id, username, status_message, user_id } = User;
+    const queryClient = useQueryClient();
+
+    const { id, username, status_message, user_id, profileurl } = User;
+
+    const [isModalOpen, setIsModalOpen] = useState<boolean>(false);
+    const [isError, setIsError] = useState<boolean>(false);
+    const [errorMessage, setErrorMessage] = useState<string>();
     const onDoubleClickEvent = () => {
         router.push(`/girl-friend/chatting/${user_id}`)
     }
 
+    const onDeleteClickEvent = async () => {
+        try {
+            let data = await deleteUser(user_id);
+            console.log({ data })
+            if (data.isSuccess) {
+                queryClient.invalidateQueries({ queryKey: ['getFriends', 'test'] });
+                queryClient.refetchQueries({ queryKey: ['getFriends', 'test'] });
+
+            }
+            setIsModalOpen(!isModalOpen);
+        }
+        catch (e) {
+            console.log("에러 와줌?", e, e.message)
+            setIsError(true);
+            setErrorMessage(e.message);
+            // throw e;
+        }
+
+    }
+
+    const onSetModalOpenClickEvent = async () => {
+        setIsModalOpen(!isModalOpen);
+    }
+
+    const handleCancel = async () => {
+        setIsModalOpen(false);
+        setIsError(false);
+        setErrorMessage(undefined);
+    }
+
     return (
-        <li onDoubleClick={onDoubleClickEvent} onClick={() => setTargetUser(user_id)} className={targetUser === user_id ? 'active' : ''}>
+        <StyledFriendRow onDoubleClick={onDoubleClickEvent} onClick={() => setTargetUser(user_id)} className={targetUser === user_id ? 'active' : ''}>
             <div>
                 <img
-                    src={`/icons/user/${id}1.PNG`}
+                    src={`/icons/user/${profileurl}`}
                     alt="profile Image"
                 //   onClick={profileImgClick}
                 />
-                <div>
-                    <p>
-                        <b>{username}</b>
-                    </p>
-                    <p>{status_message}</p>
+                <div className="value-wrapper">
+                    <div className='left'>
+                        <p>
+                            <b>{username}</b>
+                        </p>
+                        <p>{status_message}</p>
+
+                    </div>
+                    <div className="right">
+                        <DeleteOutlined onClick={() => { onSetModalOpenClickEvent() }}></DeleteOutlined>
+
+                    </div>
                 </div>
-
             </div>
+            <Modal
+                title='유저 삭제'
+                open={isModalOpen}
+                onOk={() => { onDeleteClickEvent() }}
+                onCancel={handleCancel}
+                okButtonProps={isError ? { disabled: true } : { disabled: false }}
+                cancelButtonProps={{ disabled: false }}
+            >
+                <div>
+                    <p>{id} 유저를 삭제하시겠습니까?</p>
+                </div>
+                {isError && (<Result status={'500'} title={'500'} subTitle={errorMessage} ></Result>)}
+            </Modal>
 
-        </li >
+        </StyledFriendRow >
+
     )
 }
