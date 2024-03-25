@@ -8,12 +8,12 @@ type Props = {
 
 export async function generateMetadata({ params }: Props) {
     return {
-        title: `AI 여자친구`,
+        title: `AI 친구`,
         description: `프로필`
     }
 }
 /**
- * Ai 여자친구의 채팅 창
+ * Ai 친구의 채팅 창
  * @param param0 
  * @returns 
  */
