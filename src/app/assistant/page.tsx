@@ -11,9 +11,7 @@ export default async function AssistantPage() {
 
     return (
         <>
-            <p>AssistantPage</p>
             <AssistantList />
-
         </>
     )
 }

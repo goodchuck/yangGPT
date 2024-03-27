@@ -7,6 +7,7 @@ export const getAssistants = async ({ queryKey }: { queryKey: [string] }) => {
         next: {
             tags: [_1],
         },
+        cache: "no-store",
     });
     console.log("getAssistants 실행");
     if (!res.ok) {

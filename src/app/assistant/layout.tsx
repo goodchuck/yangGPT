@@ -26,8 +26,6 @@ export default async function AssistantLayout({
                 <p>assistant</p>
                 {children}
             </HydrationBoundary>
-
-
         </>
     )
 }

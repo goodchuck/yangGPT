@@ -21,9 +21,10 @@ export const AssistantCard = ({ assistant }: Props) => {
                 onError={(e: React.SyntheticEvent<HTMLImageElement, Event>) => {
                     e.target.src = "https://os.alipayobjects.com/rmsportal/QBnOOoLaAfKPirc.png";
                 }}
-                onDoubleClick={() => { onDoubleClickEvent(assistant.id) }} />}
+            />}
+            onDoubleClick={() => { onDoubleClickEvent(assistant.id) }}
         >
-            <Meta title={assistant.name} description={assistant.instructions} />
+            <Meta title={assistant.name} description={'준비중'} />
         </Card>
     )
 }

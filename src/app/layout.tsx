@@ -1,12 +1,12 @@
 import type { Metadata } from "next";
-import { Inter } from "next/font/google";
+import { Inter, Noto_Sans_KR } from "next/font/google";
 import { SideBar } from "./_component/SideBar";
 import { Flex } from "antd";
 import StyledComponentsRegistry from "@/lib/registry";
 import RQProvider from "./_component/RQProvider";
-// import "./globals.css";
+import "./globals.css";
 
-const inter = Inter({ subsets: ["latin"] });
+const inter = Noto_Sans_KR({ weight: ['500'], subsets: ["latin"] });
 
 export const metadata: Metadata = {
   title: "Create Next App",

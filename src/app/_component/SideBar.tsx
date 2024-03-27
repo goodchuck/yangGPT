@@ -55,6 +55,7 @@ const items: MenuItem[] = [
     getItem('카카오톡컨셉', '/kakaoTalk', <AppstoreOutlined />, [
         getItem('친구들', '/girl-friend/friends'),
     ]),
+    getItem('도우미들', '/assistant', <AppstoreOutlined />),
 ];
 
 export const SideBar = () => {
