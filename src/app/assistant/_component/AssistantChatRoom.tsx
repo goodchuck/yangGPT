@@ -3,11 +3,12 @@
 import { addMesageToThread, checkRunStatus, getAssistantResponse, getThread, runAssistant } from "@/app/api/assistant/assistantAPI";
 import { getTTS } from "@/app/api/Text-to-speech/Text-to-speechAPI";
 import { StyledConverSationRow } from "@/app/assistant/_component/StyledConverSationRow";
-import { PlayCircleOutlined } from "@ant-design/icons";
+import { PlayCircleOutlined, UpSquareFilled } from "@ant-design/icons";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { Button, Flex, Input, Spin } from "antd";
 import { useEffect, useRef, useState } from "react";
 import { StyledAssistantChatRoom } from "./StyledAssistantChatRoom";
+import TypingEffect from "@/app/_component/TypingEffectComponent";
 
 type Props = {
     assistantId: string;
@@ -58,9 +59,10 @@ export const AssistantChatRoom = ({ assistantId }: Props) => {
                     setIsLoading(true);
                     // scrollRef.current?.scrollIntoView({ behavior: 'smooth' });
                     setMessage('');
-                    let testRes = await getTTS({ message, voice: 'nova' });
-                    setConversations([...conversations, { message, audioData: testRes.audioData, isMe: true }])
+                    // let testRes = await getTTS({ message, voice: 'nova' });
+                    // setConversations([...conversations, { message, audioData: testRes.audioData, isMe: true }])
 
+                    setConversations([...conversations, { message, isMe: true }])
                     // scrollRef.current?.scrollIntoView({ behavior: 'smooth' });
                     //쓰레드에 메시지 추가
                     let aMTTRes = await addMesageToThread({ threadId: thread, content: message })
@@ -79,11 +81,17 @@ export const AssistantChatRoom = ({ assistantId }: Props) => {
                                 if (!cRSRes.isSuccess) {
                                     reject(new Error("Polling failed"));
                                     return;
-                                } else if (cRSRes.results.status === 'completed') {
+                                }
+                                else if (cRSRes.results.status === 'failed') {
+                                    reject(new Error(cRSRes.results.last_error));
+                                    return;
+                                }
+                                else if (cRSRes.results.status === 'completed') {
                                     let res = await getAssistantResponse(thread);
                                     console.log({ res });
                                     if (res.isSuccess) {
-                                        resolve(res.results.data[0].content[0].text.value); // 성공적으로 완료된 경우
+                                        // resolve(res.results.data[0].content[0].text.value); // 성공적으로 완료된 경우
+                                        resolve(res.results.data)
                                     } else {
                                         reject("Failed to get assistant response");
                                     }
@@ -105,18 +113,23 @@ export const AssistantChatRoom = ({ assistantId }: Props) => {
                 throw e;
             }
         },
-        async onSuccess(message: any) {
+        async onSuccess(data: any) {
             if (!thread) return;
             // 폴링 결과에 따라 성공 처리
-
-            let testRes = await getTTS({ message, voice: 'nova' });
-            setConversations([...conversations, { message, audioData: testRes.audioData, isMe: false }])
+            let messages = [];
+            for (let row of data) {
+                if (row.role === 'user') break;
+                let message = row.content[0].text.value;
+                messages.push({ message, isMe: false });
+            }
+            // let testRes = await getTTS({ message, voice: 'nova' });
+            // setConversations([...conversations, { message, audioData: testRes.audioData, isMe: false }])
+            setConversations([...conversations, ...messages])
             setIsLoading(false);
-            // scrollRef.current?.scrollIntoView({ behavior: 'smooth' });
         },
-        async onError() {
+        async onError(e) {
+            setConversations([...conversations.slice(0, -1)])
             setIsLoading(false);
-            // scrollRef.current?.scrollIntoView({ behavior: 'smooth' });
         }
     })
 
@@ -136,21 +149,21 @@ export const AssistantChatRoom = ({ assistantId }: Props) => {
 
     return (
         <StyledAssistantChatRoom>
-            <Flex gap={'middle'} style={{ width: '100%' }}>
-                <Flex gap={'middle'} vertical style={{ width: '50%' }}>
+            {assistant && <h2>{assistant.name}</h2>}
+            <Flex gap={'middle'} style={{ width: '100%', marginTop: '10px' }}>
+                <Flex gap={'middle'} vertical style={{ width: '100%' }}>
                     <Flex gap={'middle'} vertical align="center" className="conversationRoom">
                         {conversations.map((row, index) => (<ConverSationRow key={index} message={row.message} audioData={row.audioData} isMe={row.isMe}></ConverSationRow>))}
                         {isLoading && (<Spin></Spin>)}
                         <div ref={scrollRef}></div>
                     </Flex>
 
-                    <TextArea value={message} onChange={onChangeMessageEvent} rows={4}></TextArea>
-
-                    <Flex gap={'middle'}>
-                        <Button onClick={handleSubmit}>제출</Button>
+                    <Flex gap={'middle'} justify="center" style={{ borderRadius: '1rem', borderWidth: '1px', borderColor: 'gray', border: '1px solid gray' }}>
+                        <TextArea value={message} onChange={onChangeMessageEvent} rows={1} style={{ width: '90%', borderWidth: 0 }} autoSize></TextArea>
+                        <UpSquareFilled onClick={handleSubmit} />
                     </Flex>
                 </Flex>
-                <Flex gap={'middle'} vertical style={{ width: '50%' }}>
+                {/* <Flex gap={'middle'} vertical style={{ width: '50%' }}>
                     <h2>인공지능 설명</h2>
                     <p>이름</p>
                     <p>{assistant && assistant.name}</p>
@@ -158,20 +171,40 @@ export const AssistantChatRoom = ({ assistantId }: Props) => {
                     <p>{assistant && assistant.model}</p>
                     <p>컨셉</p>
                     <p>{assistant && assistant.instructions}</p>
-                </Flex>
+                </Flex> */}
             </Flex>
 
         </StyledAssistantChatRoom>
     )
 }
 
-const ConverSationRow = ({ message, audioData, isMe = false }: { message: string, audioData?: any, isMe?: boolean }) => {
+const ConverSationRow = ({ message, audioData = false, isMe = false }: { message: string, audioData?: any, isMe?: boolean }) => {
     // console.log({ message, isMe })
     const audioRef = useRef<HTMLAudioElement | null>(null);
-    const onClickEvent = () => {
-        if (audioRef.current && audioData) {
-            audioRef.current.src = `data:audio/mp3;base64,${audioData}`
-            audioRef.current.play();
+    const [disabled, setDisabled] = useState<boolean>(false);
+    const isAudioPlaying = () => {
+        if (audioRef.current) {
+            return !audioRef.current.paused;
+        }
+        return false;
+    }
+
+    const onClickEvent = async () => {
+        if (audioRef.current) {
+            if (!audioRef.current.src) {
+                setDisabled(true);
+                let testRes = await getTTS({ message, voice: 'nova' });
+                setDisabled(false);
+                if (testRes.isSuccess) {
+                    audioRef.current.src = `data:audio/mp3;base64,${testRes.audioData}`
+                    audioRef.current.play();
+                }
+
+            }
+            else {
+                audioRef.current.play();
+            }
+
         }
     }
 
@@ -185,9 +218,9 @@ const ConverSationRow = ({ message, audioData, isMe = false }: { message: string
                     <img width={'100px'} height={'100px'} src={isMe ? `/icons/user/ChatGPT_logo.svg` : `/icons/user/웃는표정2.png`}></img>
                     <h3>{isMe ? 'you' : 'assistant'}</h3>
                 </Flex>
-                <Flex gap={'middle'} style={{ width: '85%', border: '1px solid black' }}>
-                    <p style={{ width: '95%' }}>{message}</p>
-                    <PlayCircleOutlined onClick={onClickEvent} />
+                <Flex gap={'middle'} style={{ width: '85%' }}>
+                    <TypingEffect text={message} style={{ width: '95%' }}></TypingEffect>
+                    <PlayCircleOutlined onClick={onClickEvent} disabled={disabled} />
                     <audio ref={audioRef}></audio>
                 </Flex>
 
