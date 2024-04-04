@@ -23,7 +23,7 @@ export default async function AssistantLayout({
     return (
         <>
             <HydrationBoundary state={dehydratedState}>
-                <p>assistant</p>
+                {/* <p>assistant</p> */}
                 {children}
             </HydrationBoundary>
         </>

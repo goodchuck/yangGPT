@@ -6,7 +6,7 @@ import { StyledConverSationRow } from "@/app/assistant/_component/StyledConverSa
 import { PlayCircleOutlined, UpSquareFilled } from "@ant-design/icons";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { Button, Flex, Input, Spin } from "antd";
-import { useEffect, useRef, useState } from "react";
+import React, { useEffect, useRef, useState } from "react";
 import { StyledAssistantChatRoom } from "./StyledAssistantChatRoom";
 import TypingEffect from "@/app/_component/TypingEffectComponent";
 
@@ -147,6 +147,14 @@ export const AssistantChatRoom = ({ assistantId }: Props) => {
         setMessage(e.target.value);
     }
 
+
+    const handleKeydown = (event: React.KeyboardEvent<HTMLTextAreaElement>) => {
+        if (event.key === 'Enter') {
+            event.preventDefault();
+            handleSubmit();
+        }
+    }
+
     return (
         <StyledAssistantChatRoom>
             {assistant && <h2>{assistant.name}</h2>}
@@ -159,7 +167,7 @@ export const AssistantChatRoom = ({ assistantId }: Props) => {
                     </Flex>
 
                     <Flex gap={'middle'} justify="center" style={{ borderRadius: '1rem', borderWidth: '1px', borderColor: 'gray', border: '1px solid gray' }}>
-                        <TextArea value={message} onChange={onChangeMessageEvent} rows={1} style={{ width: '90%', borderWidth: 0 }} autoSize></TextArea>
+                        <TextArea value={message} onChange={onChangeMessageEvent} onKeyDown={handleKeydown} rows={1} style={{ width: '90%', borderWidth: 0 }} autoSize={{ maxRows: 5 }}></TextArea>
                         <UpSquareFilled onClick={handleSubmit} />
                     </Flex>
                 </Flex>

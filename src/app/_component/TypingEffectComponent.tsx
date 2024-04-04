@@ -2,7 +2,7 @@
 import { useState, useEffect } from "react";
 
 
-const TypingEffect = ({ text, delay = 100, cursor = '|', style }: { text: string, delay?: number, cursor?: string, style?: React.CSSProperties }) => {
+const TypingEffect = ({ text, delay = 200, cursor = '|', style }: { text: string, delay?: number, cursor?: string, style?: React.CSSProperties }) => {
     const [displayText, setDisplayText] = useState('');
     const [currentIndex, setCurrentIndex] = useState(0);
     const lines = text.split('\n');
