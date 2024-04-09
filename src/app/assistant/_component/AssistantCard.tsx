@@ -1,6 +1,6 @@
 "use client"
 import React from "react";
-import { Avatar, Button, Card, Skeleton } from 'antd';
+import { Avatar, Button, Card, Image, Skeleton } from 'antd';
 import { useRouter } from "next/navigation";
 import { EditOutlined, EllipsisOutlined, SettingOutlined } from "@ant-design/icons";
 const { Meta } = Card;
@@ -16,17 +16,15 @@ export const AssistantCard = ({ assistant }: Props) => {
     }
     return (
         <Card
-            style={{ width: 300 }}
+            style={{ width: '300px' }}
             cover={
-                <img
+                <Image
                     alt="example"
                     src={`/icons/assistant/${assistant.id}.png`}
                 />
             }
             actions={[
-                <Button onClick={() => { onDoubleClickEvent(assistant.id) }} >대화 하러 가기</Button>,
-                // <EditOutlined key="edit" />,
-                // <EllipsisOutlined key="ellipsis" />,
+                <Button key='go-to-chat' onClick={() => { onDoubleClickEvent(assistant.id) }} >대화 하러 가기</Button>
             ]}
 
         >

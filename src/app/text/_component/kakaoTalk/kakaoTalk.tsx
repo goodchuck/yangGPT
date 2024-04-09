@@ -10,7 +10,7 @@ import { getUser } from '@/app/api/user/userAPI';
 
 type Props = {
     user?: UserTypes,
-    assistant?: UserTypes,
+    // assistant?: UserTypes,
     data?: chatRoomTypes,
     isLoading?: boolean
 }
@@ -43,6 +43,7 @@ export const KakaoTalkChatRoom = forwardRef<HTMLDivElement, Props>(({ data, isLo
 
     useEffect(() => {
         if (data && !(assistant.isLoading || me.isLoading)) {
+            //@ts-ignore
             ref?.current?.scrollIntoView({ behavior: 'smooth' });
         }
 
@@ -63,7 +64,7 @@ export const KakaoTalkChatRoom = forwardRef<HTMLDivElement, Props>(({ data, isLo
     )
 
 });
-
+KakaoTalkChatRoom.displayName = 'KakaoTalkChatRoom';
 type ChatProps = {
     row: SystemMessage | UserMessage | AssistantMessage,
     me?: UserTypes,
