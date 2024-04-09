@@ -13,7 +13,7 @@ export async function POST(request: Request) {
         );
     } catch (e) {
         return NextResponse.json(
-            { isSuccess: false, message: e.message },
+            { isSuccess: false, message: e },
             { status: 500 }
         );
     }
