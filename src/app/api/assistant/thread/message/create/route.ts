@@ -8,10 +8,11 @@ const openai = new OpenAI({ apiKey: process.env.OPENAI_API_KEY });
  */
 export async function POST(request: Request) {
     try {
-        let { threadId, content } = await request.json();
+        let { threadId, content, file_ids } = await request.json();
         const message = await openai.beta.threads.messages.create(threadId, {
             role: "user",
             content,
+            file_ids,
         });
 
         const jsonResponse = NextResponse.json(

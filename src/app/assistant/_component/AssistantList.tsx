@@ -15,7 +15,11 @@ export const AssistantList = () => {
 
     return (
         <Flex gap={'middle'} >
-            {data && data.results?.map((data, i) => (<AssistantCard key={i} assistant={data} />))}
+            {data && data.results?.map((assistant, i) => {
+                let isPreparing = true;
+                if (assistant.id === "asst_K4r7EXhRTQ0JqewkgZGHkZIV") isPreparing = false;
+                return (<AssistantCard key={i} assistant={assistant} isPreparing={isPreparing} />)
+            })}
         </Flex>
     )
 }

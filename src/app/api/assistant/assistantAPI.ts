@@ -1,4 +1,7 @@
-const baseURL = process.env.API_BASE_URL || "http://localhost:3000";
+const baseURL =
+    process.env.NODE_ENV === "production"
+        ? process.env.API_BASE_URL
+        : "http://localhost:3000";
 
 export const getAssistants = async ({ queryKey }: { queryKey: [string] }) => {
     const [_1] = queryKey;

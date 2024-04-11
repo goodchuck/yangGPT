@@ -41,7 +41,7 @@ export const FriendRow = ({ User, targetUser, setTargetUser }: Props) => {
             }
             setIsModalOpen(!isModalOpen);
         }
-        catch (e) {
+        catch (e: any) {
             console.log("에러 와줌?", e, e.message)
             setIsError(true);
             setErrorMessage(e.message);

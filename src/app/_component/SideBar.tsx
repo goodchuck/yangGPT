@@ -81,14 +81,15 @@ export const SideBar = () => {
     };
 
     return (
-        <div style={{ width: 256, height: '100dvh' }}>
-            <Button type="primary" onClick={toggleCollapsed} style={{ marginBottom: 16 }}>
+        // <div style={{ width: 256, height: '100dvh' }}>
+        <div>
+            {/* <Button type="primary" onClick={toggleCollapsed} style={{ marginBottom: 16 }}>
                 {collapsed ? <MenuUnfoldOutlined /> : <MenuFoldOutlined />}
-            </Button>
+            </Button> */}
             <Menu
                 // defaultSelectedKeys={['1']}
                 // defaultOpenKeys={['sub1']}
-                mode="inline"
+                mode="horizontal"
                 theme="dark"
                 inlineCollapsed={collapsed}
                 onClick={onClick}

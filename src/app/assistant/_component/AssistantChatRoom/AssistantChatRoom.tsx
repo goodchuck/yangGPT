@@ -9,6 +9,16 @@ import { Button, Flex, Input, Spin } from "antd";
 import React, { useEffect, useRef, useState } from "react";
 import { StyledAssistantChatRoom } from "./StyledAssistantChatRoom";
 import TypingEffect from "@/app/_component/TypingEffectComponent";
+import { UploadComponent } from "@/app/_component/UploadComponent";
+
+const pdfIntroduce = `안녕하세요?
+PDF 문제 생성기입니다!
+해당 모델은 GPT 4를 기반으로 제작되었으며
+사용자가 PDF파일을 업로드하면 해당 PDF를 통해 문제를 제작해서
+제공해주는 역할을 수행하고있습니다!
+아직 테스트를 계속 진행해보고있습니다.
+만약 테스트를 해보고싶으시다면 아래 Upload를 클릭후 PDF파일을 업로드하여
+그 이후 문제를 제작해달라고 해보세요!`
 
 type Props = {
     assistantId: string;
@@ -19,12 +29,12 @@ export const AssistantChatRoom = ({ assistantId }: Props) => {
     const queryClient = useQueryClient();
     let targetAssistant: { isSuccess: boolean, results: any[] } | undefined = queryClient.getQueryData(['assistant'])
     const { data } = useQuery({ queryKey: ['thread', 'create'], queryFn: getThread })
-
     const [thread, setThread] = useState<string>();
     const [assistant, setAssistant] = useState<any>();
     const [message, setMessage] = useState<string>();
     const [conversations, setConversations] = useState<{ message: string, audioData?: any, isMe?: boolean }[]>([]);
     const [isLoading, setIsLoading] = useState<boolean>(false);
+    const [attachedFiles, setAttachedFiles] = useState<any[]>([]);
     const scrollRef = useRef<HTMLDivElement>(null);
     //쓰레드를 생성함
     useEffect(() => {
@@ -44,12 +54,15 @@ export const AssistantChatRoom = ({ assistantId }: Props) => {
 
     useEffect(() => {
         console.log(assistant);
+        if (assistant && assistant.id === "asst_K4r7EXhRTQ0JqewkgZGHkZIV" && conversations.length === 0) {
+            setConversations((prev) => [...prev, { message: pdfIntroduce, isMe: false }])
+        }
     }, [assistant])
 
     useEffect(() => {
-        if (scrollRef.current) {
-            scrollRef.current.scrollIntoView({ behavior: 'smooth' })
-        }
+        // if (scrollRef.current) {
+        scrollRef.current?.scrollIntoView({ behavior: 'smooth' })
+        // }
     }, [conversations])
 
     const mutation = useMutation({
@@ -57,15 +70,11 @@ export const AssistantChatRoom = ({ assistantId }: Props) => {
             try {
                 if (thread && assistant) {
                     setIsLoading(true);
-                    // scrollRef.current?.scrollIntoView({ behavior: 'smooth' });
                     setMessage('');
-                    // let testRes = await getTTS({ message, voice: 'nova' });
-                    // setConversations([...conversations, { message, audioData: testRes.audioData, isMe: true }])
 
                     setConversations([...conversations, { message, isMe: true }])
-                    // scrollRef.current?.scrollIntoView({ behavior: 'smooth' });
                     //쓰레드에 메시지 추가
-                    let aMTTRes = await addMesageToThread({ threadId: thread, content: message })
+                    let aMTTRes = await addMesageToThread({ threadId: thread, content: message, file_ids: attachedFiles.map(v => v.id) })
                     console.log({ aMTTRes })
 
                     //assistant에 쓰레드 추가
@@ -155,10 +164,19 @@ export const AssistantChatRoom = ({ assistantId }: Props) => {
         }
     }
 
+    const getUploadFile = (files: any) => {
+        console.log("파일 확인용", files);
+        setAttachedFiles(files);
+        return;
+    }
+
     return (
         <StyledAssistantChatRoom>
-            {assistant && <h2>{assistant.name}</h2>}
-            <Flex gap={'middle'} style={{ width: '100%', marginTop: '10px' }}>
+            <Flex justify='center'>
+                {assistant && <h1>{assistant.name}</h1>}
+            </Flex>
+
+            <Flex gap={'middle'} style={{ width: '100%', marginTop: '10px', padding: '5px' }}>
                 <Flex gap={'middle'} vertical style={{ width: '100%' }}>
                     <Flex gap={'middle'} vertical align="center" className="conversationRoom">
                         {conversations.map((row, index) => (<ConverSationRow key={index} message={row.message} audioData={row.audioData} isMe={row.isMe}></ConverSationRow>))}
@@ -166,27 +184,22 @@ export const AssistantChatRoom = ({ assistantId }: Props) => {
                         <div ref={scrollRef}></div>
                     </Flex>
 
-                    <Flex gap={'middle'} justify="center" style={{ borderRadius: '1rem', borderWidth: '1px', borderColor: 'gray', border: '1px solid gray' }}>
-                        <TextArea value={message} onChange={onChangeMessageEvent} onKeyDown={handleKeydown} rows={1} style={{ width: '90%', borderWidth: 0 }} autoSize={{ maxRows: 5 }}></TextArea>
+                    <Flex>
+                        <UploadComponent getUploadFile={getUploadFile} setAttachedFiles={setAttachedFiles} />
+                    </Flex>
+                    <Flex gap={'middle'} justify="center" style={{ borderRadius: '1rem', borderWidth: '1px', borderColor: 'gray', border: '1px solid gray', background: 'white' }}>
+
+                        <TextArea value={message} onChange={onChangeMessageEvent} onKeyDown={handleKeydown} rows={1} style={{ width: '97%', borderWidth: 0 }} autoSize={{ maxRows: 5 }}></TextArea>
                         <UpSquareFilled onClick={handleSubmit} />
                     </Flex>
                 </Flex>
-                {/* <Flex gap={'middle'} vertical style={{ width: '50%' }}>
-                    <h2>인공지능 설명</h2>
-                    <p>이름</p>
-                    <p>{assistant && assistant.name}</p>
-                    <p>모델</p>
-                    <p>{assistant && assistant.model}</p>
-                    <p>컨셉</p>
-                    <p>{assistant && assistant.instructions}</p>
-                </Flex> */}
             </Flex>
 
         </StyledAssistantChatRoom>
     )
 }
 
-const ConverSationRow = ({ message, audioData = false, isMe = false }: { message: string, audioData?: any, isMe?: boolean }) => {
+const ConverSationRow = ({ message, isMe = false }: { message: string, audioData?: any, isMe?: boolean }) => {
     // console.log({ message, isMe })
     const audioRef = useRef<HTMLAudioElement | null>(null);
     const [disabled, setDisabled] = useState<boolean>(false);
@@ -216,22 +229,31 @@ const ConverSationRow = ({ message, audioData = false, isMe = false }: { message
         }
     }
 
+    const getFace = (message: string) => {
+        if (message.includes("(슬픔)")) {
+            return '/icons/assistant/face/슬픈표정.PNG'
+        }
+        else if (message.includes("(웃음)")) {
+            return '/icons/assistant/face/웃는표정.PNG';
+        }
+        else {
+            return '/icons/assistant/face/일반표정.PNG';
+        }
+    }
+
     return (
         <StyledConverSationRow className={isMe ? 'me' : 'und'}>
             {/* 프로필 영역 */}
-
-
             <Flex gap={'middle'}>
-                <Flex gap={'middle'} vertical align={'center'} style={{ width: '15%', justifyContent: 'center' }}>
-                    <img width={'100px'} height={'100px'} src={isMe ? `/icons/user/ChatGPT_logo.svg` : `/icons/user/웃는표정2.png`}></img>
-                    <h3>{isMe ? 'you' : 'assistant'}</h3>
+                <Flex gap={'middle'} vertical align={'center'} style={{ width: '15%', justifyContent: 'center', borderRight: '1px solid gray' }}>
+                    {!isMe && (<img width={'120px'} height={'150px'} src={isMe ? `/icons/user/ChatGPT_logo.svg` : getFace(message)}></img>)}
+                    <h3>{isMe ? 'You' : 'Assistant'}</h3>
                 </Flex>
                 <Flex gap={'middle'} style={{ width: '85%' }}>
                     <TypingEffect text={message} style={{ width: '95%' }}></TypingEffect>
                     <PlayCircleOutlined onClick={onClickEvent} disabled={disabled} />
                     <audio ref={audioRef}></audio>
                 </Flex>
-
             </Flex>
 
         </StyledConverSationRow>

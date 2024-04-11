@@ -9,3 +9,9 @@ interface chatRoomTypes {
         timestamp: string;
     }[];
 }
+
+export interface IConversation {
+    message: string;
+    audioData?: any;
+    isMe?: boolean;
+}

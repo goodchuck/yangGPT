@@ -108,3 +108,42 @@ a {
         color-scheme: dark;
     }
 }
+
+/* WebKit 브라우저용 스크롤바 스타일 */
+::-webkit-scrollbar {
+    width: 12px; /* 스크롤바 너비 */
+}
+
+::-webkit-scrollbar-track {
+    background: #f1f1f1; /* 스크롤바 트랙 배경색 */
+}
+
+::-webkit-scrollbar-thumb {
+    background: #888; /* 스크롤바 색상 */
+    border-radius: 6px; /* 스크롤바 모양 */
+}
+
+/* Firefox 브라우저용 스크롤바 스타일 */
+/* Firefox는 scrollbar-width 속성을 지원하므로 다르게 처리 */
+* {
+    scrollbar-width: thin; /* 스크롤바 너비 설정 */
+}
+
+*::-moz-scrollbar-thumb {
+    background: #888; /* 스크롤바 색상 */
+    border-radius: 6px; /* 스크롤바 모양 */
+}
+
+.cutton {
+    display: inline-block;
+    padding: 10px 20px;
+    background-color: #007bff; /* 버튼 배경색 */
+    color: #ffffff; /* 버튼 텍스트색 */
+    border-radius: 5px; /* 버튼 모서리 둥글게 */
+    text-decoration: none; /* 기본 텍스트 스타일 제거 */
+    transition: background-color 0.3s ease; /* 마우스 오버시 배경색 전환 효과 */
+}
+
+.cutton:hover {
+    background-color: #0056b3; /* 마우스 오버시 배경색 변경 */
+}
