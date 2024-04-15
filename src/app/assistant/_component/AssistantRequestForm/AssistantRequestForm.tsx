@@ -75,7 +75,7 @@ export const AssistantRequestForm = () => {
 
     let maxCost = 5;
     const [cost, setCost] = useState<number>(initialValue ? parseInt(initialValue) : 0);
-    const [outputs, setOutputs] = useState<{ problem: string, answer: string, solution: string }[]>(testOutputs);
+    const [outputs, setOutputs] = useState<{ problem: string, answer: string, solution: string }[]>([]);
     const [pageIndex, setPageIndex] = useState<number>(0);
     const [collapseItem, setCollapseItem] = useState<CollapseProps['items']>();
     const defaultActiveKey = ['1'];
@@ -265,11 +265,12 @@ export const AssistantRequestForm = () => {
     }
     return (
         <StyledAssistantRequestForm>
-            <Spin spinning={isLoading} tip='AI가 생각하는중...'>
+            <Spin spinning={isLoading} tip='AI가 생각하는중...' size="large">
 
                 <Flex vertical gap={'middle'} align="center" style={{ width: '100%', height: '90vh', backgroundColor: '#fafff7' }}>
                     <h1 className="title">PDF 문제 생성기</h1>
-                    <p className="description">PDF파일을 업로드하여 문제를 만들고 풀어봐요!</p>
+                    <h3 className="description">PDF파일을 업로드하여 문제를 만들고 풀어봐요!
+                        PDF를 먼저 업로드를 하셔야합니다!</h3>
                     <Flex vertical={false} className="form" gap={'middle'} style={{ height: '90%' }}>
                         <Flex vertical style={{ minWidth: '600px' }}>
                             <Flex vertical gap={'middle'}>
@@ -291,7 +292,7 @@ export const AssistantRequestForm = () => {
                     <TextArea value={message} onChange={onChangeMessageEvent} rows={5} /> */}
                             </Flex>
                             <Flex gap={'middle'} justify="end" align="center">
-                                <Button style={{ width: '100px' }} onClick={handleSubmit} disabled={cost === 0 ? true : false}>생성하기</Button>
+                                <Button style={{ width: '100px' }} onClick={handleSubmit} disabled={attachedFiles.length === 0 || cost === 0 ? true : false}>생성하기</Button>
                                 {cost === 0 ? <p>가지고 있는 재화를 다 소진하셨습니다! 내일 다시 도전해주세요!</p> : undefined}
                                 <p>{`남은 재화 : ${cost}`}</p>
                                 <Progress
