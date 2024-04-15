@@ -1,4 +1,4 @@
-interface chatRoomTypes {
+export interface chatRoomTypes {
     room_id: number;
     room_name: string;
     created_at: string;

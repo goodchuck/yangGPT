@@ -7,7 +7,7 @@ import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { getChatRoom } from "@/app/api/chatRoom/chatRoom";
 import { KakaoTalkChatRoom } from "./kakaoTalk/kakaoTalk";
 import { useRouter } from "next/navigation";
-
+import { chatRoomTypes } from "@/types/chatRoom/type";
 const { TextArea } = Input;
 
 type Props = {
