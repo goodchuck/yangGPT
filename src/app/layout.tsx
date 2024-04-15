@@ -20,6 +20,11 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="en">
+      <head>
+        {/* Google AdSense 스크립트 */}
+        <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-7115543754190550"
+          crossOrigin="anonymous"></script>
+      </head>
       <body className={inter.className} style={{ display: 'flex', margin: 0 }}>
         <RQProvider>
           <StyledComponentsRegistry>
