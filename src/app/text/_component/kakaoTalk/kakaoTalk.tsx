@@ -6,6 +6,7 @@ import { useEffect, useRef, forwardRef } from 'react';
 import { Spin } from 'antd';
 import { dataTagSymbol, useQueries, useQuery } from '@tanstack/react-query';
 import { getUser } from '@/app/api/user/userAPI';
+import { chatRoomTypes } from '@/types/chatRoom/type';
 // import icon from '/public/icons/user/user.svg';
 
 type Props = {
