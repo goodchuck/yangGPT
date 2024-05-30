@@ -11,7 +11,7 @@ type Props = {
   isPreparing?: boolean;
 };
 
-function AssistantCard({ assistant, isPreparing = false }: Props) {
+const AssistantCard = ({ assistant, isPreparing = false }: Props) => {
   const router = useRouter();
   const onDoubleClickEvent = (assistantId: string) => {
     if (isPreparing) {
@@ -44,6 +44,6 @@ function AssistantCard({ assistant, isPreparing = false }: Props) {
       />
     </Card>
   );
-}
+};
 
 export default AssistantCard;

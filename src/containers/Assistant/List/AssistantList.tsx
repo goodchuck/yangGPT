@@ -5,7 +5,7 @@ import { Flex } from 'antd';
 import { useEffect } from 'react';
 import AssistantCard from '../Card/AssistantCard';
 
-function AssistantList() {
+const AssistantList = () => {
   const queryClient = useQueryClient();
   const data: { isSuccess: boolean; results: any[] } | undefined =
     queryClient.getQueryData(['assistant']);
@@ -31,5 +31,5 @@ function AssistantList() {
         })}
     </Flex>
   );
-}
+};
 export default AssistantList;

@@ -82,6 +82,15 @@ const testOutputs = [
 ];
 const defaultActiveKey = ['1'];
 const maxCost = 5;
+
+type ExpandIconProps = {
+  isActive?: boolean;
+};
+
+const ExpandIcon: React.FC<ExpandIconProps> = ({ isActive }) => (
+  <CaretRightOutlined rotate={isActive ? 90 : 0} />
+);
+
 /**
  * 지금은 임시로 폼을 동적으로받지않고 PDF 문제 생성기를 위한걸로만 만들어져있음
  * @todo
@@ -89,7 +98,7 @@ const maxCost = 5;
  * 2. 정답과 풀이를 페이지가 이동할때 자동 끄기
  * @returns
  */
-function AssistantRequestForm() {
+const AssistantRequestForm = () => {
   const KEY = 'testCost';
   const { value: initialValue, updateValue } = useDailyReset({
     key: KEY,
@@ -202,7 +211,7 @@ function AssistantRequestForm() {
           console.log({ runRes });
 
           // 폴링 로직을 프로미스로 감싸서 반환
-          return new Promise((resolve, reject) => {
+          return await new Promise((resolve, reject) => {
             const pollStatus = async () => {
               try {
                 const cRSRes = await checkRunStatus({
@@ -394,9 +403,7 @@ function AssistantRequestForm() {
                     activeKey={collapseActiveKeys}
                     // defaultActiveKey={['1']}
                     onChange={onChangeCollapse}
-                    expandIcon={({ isActive }) => (
-                      <CaretRightOutlined rotate={isActive ? 90 : 0} />
-                    )}
+                    expandIcon={ExpandIcon}
                   />
                 </Flex>
               </>
@@ -406,5 +413,6 @@ function AssistantRequestForm() {
       </Spin>
     </StyledAssistantRequestForm>
   );
-}
+};
+
 export default AssistantRequestForm;

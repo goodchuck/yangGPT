@@ -11,7 +11,7 @@ type Props = {
   assistantId: string;
 };
 
-function AssistantChatRoomV2({ assistantId }: Props) {
+const AssistantChatRoomV2 = ({ assistantId }: Props) => {
   const queryClient = useQueryClient();
 
   /**
@@ -44,13 +44,13 @@ function AssistantChatRoomV2({ assistantId }: Props) {
       console.log({ data });
       setThread(data.results.id);
     }
-  }, [data]);
+  }, [data, setThread]);
 
   useEffect(() => {
-    if (Assistants?.isSuccess) {
+    if (Assistants?.isSuccess && assistantId) {
       setAssistant(Assistants.results.find((v) => v.id === assistantId));
     }
-  }, [Assistants]);
+  }, [Assistants, setAssistant, assistantId]);
 
   useEffect(() => {
     console.log(assistant);
@@ -86,6 +86,6 @@ function AssistantChatRoomV2({ assistantId }: Props) {
       <AssistantRequestForm />
     </StyledAssistantChatRoom>
   );
-}
+};
 
 export default AssistantChatRoomV2;

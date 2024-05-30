@@ -1,3 +1,3 @@
 export const getCurrentTime = () => {
-    return new Date().toISOString();
+  return new Date().toISOString();
 };
