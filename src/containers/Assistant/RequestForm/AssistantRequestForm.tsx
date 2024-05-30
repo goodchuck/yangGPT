@@ -1,5 +1,6 @@
 'use client';
 
+import { useEffect, useState } from 'react';
 import {
   Button,
   Collapse,
@@ -12,17 +13,13 @@ import {
   Select,
   Spin,
 } from 'antd';
-import { UploadComponent } from '@/app/_component/UploadComponent';
-import useAssistant from '@/hooks/useAssistant';
 import { useMutation } from '@tanstack/react-query';
-import {
-  addMesageToThread,
-  checkRunStatus,
-  getAssistantResponse,
-  runAssistant,
-} from '@/app/api/assistant/assistantAPI';
-import { useEffect, useState } from 'react';
 import { CaretRightOutlined } from '@ant-design/icons';
+
+import { UploadComponent } from '@/app/_component/UploadComponent';
+import useAssistant from '@/hooks/assistant/useAssistant';
+
+import { assistantApi } from '@/services/react-query/apis/assistant.api';
 import StyledAssistantRequestForm from './AssistantRequestForm.style';
 
 const useDailyReset = ({ key, isTest }: { key: string; isTest?: boolean }) => {
@@ -90,6 +87,9 @@ type ExpandIconProps = {
 const ExpandIcon: React.FC<ExpandIconProps> = ({ isActive }) => (
   <CaretRightOutlined rotate={isActive ? 90 : 0} />
 );
+type Props = {
+  assistantId: string;
+};
 
 /**
  * 지금은 임시로 폼을 동적으로받지않고 PDF 문제 생성기를 위한걸로만 만들어져있음
@@ -98,7 +98,7 @@ const ExpandIcon: React.FC<ExpandIconProps> = ({ isActive }) => (
  * 2. 정답과 풀이를 페이지가 이동할때 자동 끄기
  * @returns
  */
-const AssistantRequestForm = () => {
+const AssistantRequestForm = ({ assistantId }: Props) => {
   const KEY = 'testCost';
   const { value: initialValue, updateValue } = useDailyReset({
     key: KEY,
@@ -115,7 +115,7 @@ const AssistantRequestForm = () => {
     setAttachedFiles,
     conversations,
     setConversations,
-  } = useAssistant();
+  } = useAssistant(assistantId);
 
   const [cost, setCost] = useState<number>(
     initialValue ? parseInt(initialValue, 10) : 0,
@@ -195,7 +195,7 @@ const AssistantRequestForm = () => {
           ]);
 
           // 쓰레드에 메시지 추가
-          const aMTTRes = await addMesageToThread({
+          const aMTTRes = await assistantApi.addMessageToThread({
             threadId: thread,
             content: successMessage,
             file_ids: attachedFiles.map((v) => v.id),
@@ -203,7 +203,7 @@ const AssistantRequestForm = () => {
           console.log({ aMTTRes });
 
           // assistant에 쓰레드 추가
-          const runRes = await runAssistant({
+          const runRes = await assistantApi.runAssistant({
             threadId: thread,
             assistantId: assistant.id,
             instructions: assistant.instructions,
@@ -214,7 +214,7 @@ const AssistantRequestForm = () => {
           return await new Promise((resolve, reject) => {
             const pollStatus = async () => {
               try {
-                const cRSRes = await checkRunStatus({
+                const cRSRes = await assistantApi.checkRunStatus({
                   threadId: thread,
                   runId: runRes.results.id,
                 });
@@ -225,7 +225,7 @@ const AssistantRequestForm = () => {
                 } else if (cRSRes.results.status === 'failed') {
                   reject(new Error(cRSRes.results.last_error));
                 } else if (cRSRes.results.status === 'completed') {
-                  const res = await getAssistantResponse(thread);
+                  const res = await assistantApi.getAssistantResponse(thread);
                   console.log({ res });
                   if (res.isSuccess) {
                     resolve(res.results.data);
@@ -323,6 +323,7 @@ const AssistantRequestForm = () => {
     // console.log(key);
     setCollapseActiveKeys(key as string[]);
   };
+
   return (
     <StyledAssistantRequestForm>
       <Spin spinning={isLoading} tip="AI가 생각하는중..." size="large">
