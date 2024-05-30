@@ -16,7 +16,7 @@ import {
 import { useMutation } from '@tanstack/react-query';
 import { CaretRightOutlined } from '@ant-design/icons';
 
-import { UploadComponent } from '@/app/_component/UploadComponent';
+import UploadComponent from '@/components/Upload/UploadComponent';
 import useAssistant from '@/hooks/assistant/useAssistant';
 
 import { assistantApi } from '@/services/react-query/apis/assistant.api';
