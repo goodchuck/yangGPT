@@ -14,7 +14,8 @@
     {
       "files": [
         "src/components/**/*.{js,jsx,ts,tsx}",
-        "src/containers/**/*.{js,jsx,ts,tsx}"
+        "src/containers/**/*.{js,jsx,ts,tsx}",
+        "src/hooks/**/*.{js,jsx,ts,tsx}"
       ],
       "extends": [
         "next/core-web-vitals",
