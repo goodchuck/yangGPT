@@ -30,7 +30,6 @@ const useAssistant = (assistantId?: string) => {
     isSuccess: boolean;
     results: any[];
   }>(['assistants']);
-  // const assistants = assistantsResult?.results;
   const assistantsQuery = useQuery<{ isSuccess: boolean; results: any[] }>({
     queryKey: ['assistants'],
     queryFn: () => assistantApi.getAssistants(),
@@ -54,9 +53,12 @@ const useAssistant = (assistantId?: string) => {
 
   useEffect(() => {
     if (assistantsQuery.isSuccess && assistantId) {
-      setAssistant(
-        assistantsQuery.data.results.find((v) => v.id === assistantId),
+      const foundAssistant = assistantsQuery.data.results.find(
+        (v) => v.id === assistantId,
       );
+      if (foundAssistant) {
+        setAssistant(foundAssistant);
+      }
     }
   }, [
     assistantsQuery.isSuccess,
@@ -66,7 +68,7 @@ const useAssistant = (assistantId?: string) => {
   ]);
 
   return {
-    assistants: assistantsResult?.results ?? [], // queryClient에서 가져온 데이터
+    assistants: assistantsResult?.results ?? [],
     assistantsQuery,
     threadQuery,
     userInfo,
