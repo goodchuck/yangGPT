@@ -1,11 +1,11 @@
-import createRandomUser from '@/dummyData/faker-data';
+// import createRandomUser from '@/dummyData/faker-data';
 import axios from 'axios';
 
 const API_URL = 'https://api.example.com';
 
 export const fetchUser = async (userId: string) => {
-  // const { data } = await axios.get(`${API_URL}/users/${userId}`);
-  const data = createRandomUser();
+  const { data } = await axios.get(`${API_URL}/users/${userId}`);
+  // const data = createRandomUser();
   return data;
 };
 

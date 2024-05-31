@@ -1,7 +1,7 @@
 'use client';
 
 const AssistantLayout = () => {
-  return <></>;
+  return <div />;
 };
 
 export default AssistantLayout;
