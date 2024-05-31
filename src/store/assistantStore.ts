@@ -30,7 +30,7 @@ interface UserInfoActions {
 
 const defaultState = { profileUrl: '', nickname: '' };
 
-const useAssistant = create<UserInfoState & UserInfoActions>((set) => ({
+const useAssistantStore = create<UserInfoState & UserInfoActions>((set) => ({
   userInfo: defaultState,
   thread: '',
   assistant: '',
@@ -69,4 +69,4 @@ const useAssistant = create<UserInfoState & UserInfoActions>((set) => ({
   },
 }));
 
-export default useAssistant;
+export default useAssistantStore;
